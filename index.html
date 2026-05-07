@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CSUBot</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="csubot.css" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-title">CSU<span>Bot</span></div>
+    <div class="header-actions">
+      <button class="config-btn" onclick="clearChat()">Clear chat</button>
+
+      <!-- Logout is a form POST — not a GET link, not a fetch() call -->
+      <form method="POST" action="/logout" style="display:inline;">
+        <button type="submit" class="config-btn">Sign out</button>
+      </form>
+
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        Online
+      </div>
+    </div>
+  </header>
+
+  <!-- Messages -->
+  <div id="messages">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" stroke="#FDB913" stroke-width="1.5" fill="none"/>
+          <path d="M8 13s1 2 4 2 4-2 4-2" stroke="#FDB913" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="9.5" cy="10.5" r="1" fill="#FDB913"/>
+          <circle cx="14.5" cy="10.5" r="1" fill="#FDB913"/>
+        </svg>
+      </div>
+      <h2>How can I help you today?</h2>
+      <p>Ask me anything. I'm here to assist.</p>
+    </div>
+  </div>
+
+  <!-- Error toast -->
+  <div id="errorToast"></div>
+
+  <!-- Input -->
+  <div class="input-area">
+    <div class="input-row">
+      <textarea id="userInput" rows="1" placeholder="Type your message…"></textarea>
+      <button id="sendBtn" onclick="sendMessage()" title="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+    <p class="input-hint">Enter to send · Shift+Enter for new line</p>
+  </div>
+
+  <script src="csubot.js"></script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CSUBot — Sign In</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --blue:    #003087;
+      --gold:    #FDB913;
+      --bg:      #f5f6f8;
+      --white:   #ffffff;
+      --surface: #eef0f4;
+      --border:  #dde0e8;
+      --text:    #0d1117;
+      --muted:   #6b7280;
+      --error:   #dc2626;
+      --font-ui:   'Sora', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      font-family: var(--font-ui);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 24px rgba(0,48,135,0.08);
+      animation: fadeUp .3s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .brand-icon {
+      width: 56px; height: 56px;
+      background: var(--blue);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px;
+      box-shadow: 0 4px 16px rgba(0,48,135,0.2);
+    }
+
+    .brand-icon svg { width: 28px; height: 28px; }
+
+    .brand h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--blue);
+      letter-spacing: -0.02em;
+    }
+
+    .brand h1 span { color: var(--gold); }
+
+    .brand p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .gold-bar {
+      width: 48px; height: 3px;
+      background: var(--gold);
+      border-radius: 2px;
+      margin: 12px auto 0;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .field input {
+      width: 100%;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-family: var(--font-ui);
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .field input:focus { border-color: var(--blue); }
+    .field input::placeholder { color: var(--muted); }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--blue);
+      color: var(--gold);
+      border: none;
+      border-radius: 10px;
+      padding: 13px;
+      font-family: var(--font-ui);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity .2s, transform .1s;
+      letter-spacing: -0.01em;
+    }
+
+    .submit-btn:hover { opacity: .88; }
+    .submit-btn:active { transform: scale(.98); }
+
+    .error-msg {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: var(--error);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-top: 14px;
+      font-family: var(--font-mono);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="brand">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="#FDB913" stroke-width="1.5" fill="none"/>
+        <path d="M8 13s1 2 4 2 4-2 4-2" stroke="#FDB913" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="9.5" cy="10.5" r="1" fill="#FDB913"/>
+        <circle cx="14.5" cy="10.5" r="1" fill="#FDB913"/>
+      </svg>
+    </div>
+    <h1>CSU<span>Bot</span></h1>
+    <p>Sign in to continue</p>
+    <div class="gold-bar"></div>
+  </div>
+
+  <!-- Standard HTML form POST — no JavaScript required for submission -->
+  <form method="POST" action="/login">
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="you@csub.edu"
+        autocomplete="email"
+        required
+      />
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="••••••••"
+        autocomplete="current-password"
+        required
+      />
+    </div>
+
+    <button type="submit" class="submit-btn">Sign In</button>
+
+  </form>
+
+  <!-- Error message injected by Flask via string replace -->
+  <div class="error-msg" id="errorMsg" style="display:none;">__ERROR__</div>
+
+  <div class="footer">
+    Access is restricted to authorized users only.
+  </div>
+</div>
+
+</body>
+</html>
