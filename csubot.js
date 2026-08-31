@@ -1,5 +1,6 @@
 // ── Config ────────────────────────────────────────────────────
 const API_URL = 'http://localhost:5001/chat';
+const CHAT_STORAGE_KEY = 'csubot_chat';
 // ─────────────────────────────────────────────────────────────
 
 const messagesEl = document.getElementById('messages');
@@ -11,7 +12,41 @@ const errorToast = document.getElementById('errorToast');
 let conversationHistory = [];
 let isGenerating = false;
 
-// Logout is handled by a plain form POST in index.html — no JS needed.
+function saveChat() {
+  try {
+    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(conversationHistory));
+  } catch { /* quota / private mode */ }
+}
+
+function loadChat() {
+  try {
+    const raw = localStorage.getItem(CHAT_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function restoreChat() {
+  conversationHistory = loadChat();
+  if (!conversationHistory.length) return;
+
+  emptyState.style.display = 'none';
+  for (const msg of conversationHistory) {
+    if (msg.role === 'user') {
+      addMessage('user', msg.content);
+    } else if (msg.role === 'assistant') {
+      addMessage('ai', msg.content);
+    }
+  }
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+document.querySelector('form[action="/logout"]')?.addEventListener('submit', () => {
+  localStorage.removeItem(CHAT_STORAGE_KEY);
+});
 
 // ── Input handling ────────────────────────────────────────────
 inputEl.addEventListener('input', () => {
@@ -34,6 +69,7 @@ function showError(msg) {
 
 function clearChat() {
   conversationHistory = [];
+  saveChat();
   messagesEl.innerHTML = '';
   messagesEl.appendChild(emptyState);
   emptyState.style.display = 'block';
@@ -53,7 +89,11 @@ function addMessage(role, content) {
   bubble.className = 'bubble';
 
   if (role === 'ai') {
-    bubble.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+    if (content) {
+      renderAIContent(bubble, content);
+    } else {
+      bubble.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+    }
   } else {
     bubble.textContent = content;
   }
@@ -97,6 +137,7 @@ async function sendMessage() {
   if (!text || isGenerating) return;
 
   conversationHistory.push({ role: 'user', content: text });
+  saveChat();
   addMessage('user', text);
 
   inputEl.value = '';
@@ -161,6 +202,7 @@ async function sendMessage() {
     }
 
     conversationHistory.push({ role: 'assistant', content: fullResponse });
+    saveChat();
 
   } catch (err) {
     console.error(err);
@@ -172,3 +214,5 @@ async function sendMessage() {
     inputEl.focus();
   }
 }
+
+restoreChat();
