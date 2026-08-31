@@ -25,14 +25,16 @@ import time
 import requests
 import bcrypt
 from flask import (Flask, request, Response, stream_with_context,
-                   session, redirect, url_for, jsonify, render_template_string)
+                   session, redirect, url_for, jsonify, render_template_string,
+                   send_from_directory)
+from rag import build_system_prompt
 from flask_cors import CORS
 from datetime import timedelta
 from functools import wraps
 
 # ── Configuration ─────────────────────────────────────────────
 OLLAMA_HOST      = 'http://127.0.0.1:11434'
-DEFAULT_MODEL    = 'qwen3:8b'
+DEFAULT_MODEL    = 'qwen3:1.7b'
 RATE_LIMIT       = 20           # max chat requests per IP per hour
 RATE_WINDOW      = 3600         # seconds
 ALLOWED_ROLES    = {'user', 'assistant', 'system'}
@@ -53,7 +55,7 @@ app.permanent_session_lifetime = timedelta(hours=SESSION_HOURS)
 # Cookie security flags
 app.config.update(
     SESSION_COOKIE_HTTPONLY = True,
-    SESSION_COOKIE_SECURE   = True,    # HTTPS only
+    SESSION_COOKIE_SECURE   = False,   # False for local HTTP; True in production
     SESSION_COOKIE_SAMESITE = 'Lax',
     SESSION_COOKIE_NAME     = 'csubot_session',
 )
@@ -250,6 +252,16 @@ def index():
         return f.read()
 
 
+@app.route('/csubot.css')
+def stylesheet():
+    return send_from_directory(os.path.dirname(__file__), 'csubot.css')
+
+
+@app.route('/csubot.js')
+def script():
+    return send_from_directory(os.path.dirname(__file__), 'csubot.js')
+
+
 @app.route('/chat', methods=['POST'])
 @login_required
 def chat():
@@ -265,6 +277,9 @@ def chat():
     for m in body['messages']:
         role    = m.get('role', 'user')
         content = str(m.get('content', ''))
+        # Never accept a client-supplied system prompt.
+        if role == 'system':
+            continue
         if role not in ALLOWED_ROLES:
             role = 'user'
         messages.append({'role': role, 'content': content[:MAX_MSG_LEN]})
@@ -272,7 +287,21 @@ def chat():
     if not messages:
         return jsonify({'error': 'No valid messages.'}), 400
 
-    payload = {'model': DEFAULT_MODEL, 'messages': messages, 'stream': True}
+    user_query = next(
+        (m['content'] for m in reversed(messages) if m['role'] == 'user'),
+        ''
+    )
+    messages = [
+        {'role': 'system', 'content': build_system_prompt(user_query)}
+    ] + messages
+
+    payload = {
+        'model': DEFAULT_MODEL,
+        'messages': messages,
+        'stream': True,
+        'think': False,
+        'options': {'temperature': 0.2},
+    }
 
     def generate():
         try:
@@ -300,4 +329,4 @@ def health():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5001, debug=False)

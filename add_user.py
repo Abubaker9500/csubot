@@ -16,6 +16,28 @@ import re
 
 DB_PATH = os.path.join(os.path.dirname(__file__), 'csubot.db')
 
+def init_db():
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.executescript("""
+            CREATE TABLE IF NOT EXISTS users (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                email         TEXT    NOT NULL UNIQUE,
+                password_hash TEXT    NOT NULL,
+                created_at    INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+            );
+
+            CREATE TABLE IF NOT EXISTS login_attempts (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                email        TEXT    NOT NULL,
+                ip           TEXT    NOT NULL,
+                success      INTEGER NOT NULL DEFAULT 0,
+                attempted_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_login_attempts_email_time
+                ON login_attempts (email, attempted_at);
+        """)
+
 def valid_email(email):
     return re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', email) is not None
 
@@ -73,6 +95,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     command = sys.argv[1].lower()
+    init_db()
 
     if command == 'add':
         if len(sys.argv) != 4:

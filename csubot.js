@@ -1,5 +1,5 @@
 // ── Config ────────────────────────────────────────────────────
-const API_URL = 'https://hpc1.csub.edu/ab-sayed/chat';
+const API_URL = 'http://localhost:5001/chat';
 // ─────────────────────────────────────────────────────────────
 
 const messagesEl = document.getElementById('messages');
@@ -141,13 +141,23 @@ async function sendMessage() {
       for (const line of lines) {
         try {
           const json = JSON.parse(line);
+          if (json.error) {
+            throw new Error(json.error);
+          }
           if (json.message?.content) {
             fullResponse += json.message.content;
             renderAIContent(aiBubble, fullResponse);
             messagesEl.scrollTop = messagesEl.scrollHeight;
           }
-        } catch { /* partial JSON line */ }
+        } catch (parseErr) {
+          if (parseErr instanceof SyntaxError) continue; /* partial JSON line */
+          throw parseErr;
+        }
       }
+    }
+
+    if (!fullResponse) {
+      throw new Error('The model returned an empty response.');
     }
 
     conversationHistory.push({ role: 'assistant', content: fullResponse });

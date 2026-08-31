@@ -1,0 +1,11 @@
+.venv/
+finetune/.venv/
+finetune/adapters/
+finetune/lora_csubot/
+finetune/gguf_csubot/
+finetune/fused-csubot/
+finetune/*.gguf
+csubot.db
+__pycache__/
+*.pyc
+.DS_Store
