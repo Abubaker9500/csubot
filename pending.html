@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CSUBot — Pending approval</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="panel.css"/>
+</head>
+<body>
+<div class="card">
+  <div class="brand">
+    <h1>CSU<span>Bot</span></h1>
+    <p>__STATUS_MSG__</p>
+    <div class="gold-bar"></div>
+  </div>
+  <p class="meta">Signed in as <strong>__EMAIL__</strong> (__ROLE__).</p>
+  <form method="POST" action="/logout">
+    <button type="submit" class="submit-btn">Sign out</button>
+  </form>
+</div>
+</body>
+</html>

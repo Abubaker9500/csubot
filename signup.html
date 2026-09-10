@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CSUBot — Request access</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="panel.css"/>
+</head>
+<body>
+<div class="card">
+  <div class="brand">
+    <h1>CSU<span>Bot</span></h1>
+    <p>Request a student or staff account. An admin must approve you before you can sign in.</p>
+    <div class="gold-bar"></div>
+  </div>
+  <form method="POST" action="/signup">
+    <div class="field">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="you@csub.edu" required/>
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" minlength="8" placeholder="At least 8 characters" required/>
+    </div>
+    <div class="field">
+      <label for="role">Account type</label>
+      <select id="role" name="role" required>
+        <option value="student">Student — chat with CSUBot</option>
+        <option value="staff">Staff — update campus knowledge</option>
+      </select>
+    </div>
+    <button type="submit" class="submit-btn">Request access</button>
+  </form>
+  <div class="error-msg" id="errorMsg" style="display:none;">__ERROR__</div>
+  <p class="footer"><a href="/login">Back to sign in</a></p>
+</div>
+</body>
+</html>

@@ -105,6 +105,12 @@ header {
   color: var(--white);
 }
 
+a.config-btn {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
 /* ── Messages ── */
 #messages {
   flex: 1;

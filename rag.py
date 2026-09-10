@@ -8,9 +8,11 @@ student wording and typos (libary, cafe, csub, etc.).
 
 import os
 import re
+import sqlite3
 from functools import lru_cache
 
 KNOWLEDGE_DIR = os.path.join(os.path.dirname(__file__), 'knowledge')
+DB_PATH = os.path.join(os.path.dirname(__file__), 'csubot.db')
 MAX_CHUNKS = 3
 MIN_SCORE = 0.5
 
@@ -53,6 +55,7 @@ SYNONYMS = {
     'mascot': ['roadrunner', 'rowdy'],
     'roadrunner': ['mascot', 'rowdy', 'csub'],
     'address': ['location', 'stockdale', 'where'],
+    'faq': ['question', 'hours'],
 }
 
 TOKEN_RE = re.compile(r"[a-z0-9']+")
@@ -89,7 +92,7 @@ def split_markdown(text, source):
 
 
 @lru_cache(maxsize=1)
-def load_chunks():
+def load_file_chunks():
     chunks = []
     if not os.path.isdir(KNOWLEDGE_DIR):
         return tuple()
@@ -100,6 +103,39 @@ def load_chunks():
         with open(path, encoding='utf-8') as f:
             chunks.extend(split_markdown(f.read(), name))
     return tuple(chunks)
+
+
+def load_faq_chunks():
+    if not os.path.isfile(DB_PATH):
+        return []
+    chunks = []
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        try:
+            rows = conn.execute(
+                'SELECT question, answer FROM faqs ORDER BY id'
+            ).fetchall()
+        except sqlite3.OperationalError:
+            return []
+    for row in rows:
+        question = (row['question'] or '').strip()
+        answer = (row['answer'] or '').strip()
+        if not question or not answer:
+            continue
+        chunks.append({
+            'source': 'faq',
+            'title': question,
+            'text': f'## {question}\n{answer}',
+        })
+    return chunks
+
+
+def refresh_knowledge():
+    load_file_chunks.cache_clear()
+
+
+def load_chunks():
+    return tuple(list(load_file_chunks()) + load_faq_chunks())
 
 
 def score_chunk(query_tokens, chunk):

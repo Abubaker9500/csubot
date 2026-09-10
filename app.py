@@ -3,6 +3,7 @@ CSUBot - Flask Backend with V1 Auth
 - SQLite user store, no flat files
 - bcrypt cost 12
 - Email-only identity, no username
+- Roles: student (chat), staff (RAG/FAQ), admin (approve accounts)
 - Form POST login, not JSON
 - Client-stored server-signed session cookie (NOT server-side store)
 - session.clear() on login (session fixation prevention)
@@ -16,6 +17,7 @@ Run with:
   gunicorn --bind 0.0.0.0:5000 --timeout 120 --worker-class gthread app:app
 """
 
+import html
 import json
 import os
 import sqlite3
@@ -25,9 +27,9 @@ import time
 import requests
 import bcrypt
 from flask import (Flask, request, Response, stream_with_context,
-                   session, redirect, url_for, jsonify, render_template_string,
+                   session, redirect, url_for, jsonify,
                    send_from_directory)
-from rag import build_system_prompt
+from rag import build_system_prompt, refresh_knowledge
 from flask_cors import CORS
 from datetime import timedelta
 from functools import wraps
@@ -35,11 +37,18 @@ from functools import wraps
 # ── Configuration ─────────────────────────────────────────────
 OLLAMA_HOST      = 'http://127.0.0.1:11434'
 DEFAULT_MODEL    = 'qwen3:1.7b'
-RATE_LIMIT       = 20           # max chat requests per IP per hour
+RATE_LIMIT       = 200          # max chat requests per IP per hour
 RATE_WINDOW      = 3600         # seconds
 ALLOWED_ROLES    = {'user', 'assistant', 'system'}
+ACCOUNT_ROLES    = {'student', 'staff', 'admin'}
+SIGNUP_ROLES     = {'student', 'staff'}
 MAX_MSG_LEN      = 4000
-DB_PATH          = os.path.join(os.path.dirname(__file__), 'csubot.db')
+ROOT             = os.path.dirname(__file__)
+DB_PATH          = os.path.join(ROOT, 'csubot.db')
+KNOWLEDGE_DIR    = os.path.join(ROOT, 'knowledge')
+KNOWLEDGE_FILES  = (
+    'about.md', 'library.md', 'dining.md', 'calendar.md', 'campus.md'
+)
 SECRET_KEY       = os.environ.get('CSUBOT_SECRET', 'CHANGE_THIS_IN_PRODUCTION')
 SESSION_HOURS    = 8            # fixed lifetime, no sliding window
 MAX_FAILED_LOGIN = 5
@@ -70,6 +79,11 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
+def _ensure_column(conn, table, name, spec):
+    cols = [row[1] for row in conn.execute(f'PRAGMA table_info({table})')]
+    if name not in cols:
+        conn.execute(f'ALTER TABLE {table} ADD COLUMN {name} {spec}')
+
 def init_db():
     with get_db() as conn:
         conn.executescript("""
@@ -90,17 +104,60 @@ def init_db():
 
             CREATE INDEX IF NOT EXISTS idx_login_attempts_email_time
                 ON login_attempts (email, attempted_at);
+
+            CREATE TABLE IF NOT EXISTS faqs (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                question   TEXT    NOT NULL,
+                answer     TEXT    NOT NULL,
+                updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+            );
         """)
+        _ensure_column(conn, 'users', 'role', "TEXT NOT NULL DEFAULT 'student'")
+        _ensure_column(conn, 'users', 'status', "TEXT NOT NULL DEFAULT 'approved'")
 
 init_db()
 
 # ── Helpers ───────────────────────────────────────────────────
+def read_html(name):
+    with open(os.path.join(ROOT, name), encoding='utf-8') as f:
+        return f.read()
+
+def show_box(html_text, placeholder, message, open_style='display:block;'):
+    if not message:
+        return html_text
+    needle = f'style="display:none;">{placeholder}'
+    return html_text.replace(
+        needle,
+        f'style="{open_style}">{html.escape(message)}'
+    )
+
 def get_user_by_email(email):
     with get_db() as conn:
         return conn.execute(
             'SELECT * FROM users WHERE LOWER(email) = ?',
             (email.lower(),)
         ).fetchone()
+
+def get_user_by_id(user_id):
+    with get_db() as conn:
+        return conn.execute(
+            'SELECT * FROM users WHERE id = ?', (user_id,)
+        ).fetchone()
+
+def current_user():
+    user_id = session.get('user_id')
+    if not user_id:
+        return None
+    return get_user_by_id(user_id)
+
+def redirect_for_user(user):
+    if not user or user['status'] != 'approved':
+        return redirect(url_for('pending_page'))
+    if user['role'] == 'admin':
+        return redirect(url_for('admin_page'))
+    if user['role'] == 'staff':
+        return redirect(url_for('staff_page'))
+    return redirect(url_for('index'))
 
 def record_attempt(email, ip, success):
     with get_db() as conn:
@@ -146,6 +203,35 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated
 
+def approved_required(*roles):
+    def decorator(f):
+        @wraps(f)
+        @login_required
+        def decorated(*args, **kwargs):
+            user = current_user()
+            if not user:
+                session.clear()
+                return redirect(url_for('login_page'))
+            if user['status'] != 'approved':
+                if request.is_json:
+                    return jsonify({'error': 'Account pending approval.'}), 403
+                return redirect(url_for('pending_page'))
+            if roles and user['role'] not in roles:
+                if request.is_json:
+                    return jsonify({'error': 'Forbidden.'}), 403
+                return redirect_for_user(user)
+            return f(*args, **kwargs)
+        return decorated
+    return decorator
+
+def role_nav(user):
+    links = []
+    if user['role'] == 'admin':
+        links.append('<a class="config-btn" href="/admin">Approve users</a>')
+    if user['role'] == 'staff':
+        links.append('<a class="config-btn" href="/staff">Knowledge</a>')
+    return ''.join(links)
+
 # ── Rate limiting (chat only) ─────────────────────────────────
 RATE_DIR = os.path.join(tempfile.gettempdir(), 'csubot_rl')
 os.makedirs(RATE_DIR, exist_ok=True)
@@ -170,17 +256,13 @@ def is_rate_limited(ip):
 # ── Auth routes ───────────────────────────────────────────────
 @app.route('/login', methods=['GET'])
 def login_page():
-    if 'user_id' in session:
-        return redirect(url_for('index'))
-    error = request.args.get('error', '')
-    with open(os.path.join(os.path.dirname(__file__), 'login.html')) as f:
-        html = f.read()
-    if error:
-        html = html.replace(
-            'style="display:none;">__ERROR__',
-            f'style="display:block;">{error}'
-        )
-    return html
+    user = current_user()
+    if user:
+        return redirect_for_user(user)
+    page = read_html('login.html')
+    page = show_box(page, '__ERROR__', request.args.get('error', ''))
+    page = show_box(page, '__NOTICE__', request.args.get('notice', ''))
+    return page
 
 
 @app.route('/login', methods=['POST'])
@@ -218,6 +300,10 @@ def login():
             msg += f' {remaining} attempt(s) remaining before lockout.'
         return redirect(url_for('login_page', error=msg))
 
+    if user['status'] == 'denied':
+        return redirect(url_for('login_page',
+            error='This account was not approved. Contact an admin.'))
+
     # ── Success ───────────────────────────────────────────────
     record_attempt(email, ip, success=True)
 
@@ -232,7 +318,71 @@ def login():
     session['user_id'] = user['id']
     session['email']   = user['email']
 
-    return redirect(url_for('index'))
+    return redirect_for_user(user)
+
+
+@app.route('/signup', methods=['GET'])
+def signup_page():
+    if current_user():
+        return redirect_for_user(current_user())
+    return show_box(read_html('signup.html'), '__ERROR__', request.args.get('error', ''))
+
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    email    = request.form.get('email', '').strip().lower()
+    password = request.form.get('password', '')
+    role     = request.form.get('role', 'student').strip().lower()
+
+    if not email or '@' not in email or '.' not in email.split('@')[-1]:
+        return redirect(url_for('signup_page', error='Enter a valid email address.'))
+    if len(password) < 8:
+        return redirect(url_for('signup_page', error='Password must be at least 8 characters.'))
+    if role not in SIGNUP_ROLES:
+        return redirect(url_for('signup_page', error='Choose Student or Staff.'))
+
+    password_hash = bcrypt.hashpw(
+        password.encode(), bcrypt.gensalt(rounds=12)
+    ).decode()
+    try:
+        with get_db() as conn:
+            conn.execute(
+                'INSERT INTO users (email, password_hash, role, status) VALUES (?, ?, ?, ?)',
+                (email, password_hash, role, 'pending')
+            )
+    except sqlite3.IntegrityError:
+        return redirect(url_for('signup_page', error='That email is already registered.'))
+
+    return redirect(url_for('login_page',
+        notice='Request submitted. An admin must approve your account before you can sign in.'))
+
+
+@app.route('/pending')
+@login_required
+def pending_page():
+    user = current_user()
+    if not user:
+        session.clear()
+        return redirect(url_for('login_page'))
+    if user['status'] == 'approved':
+        return redirect_for_user(user)
+    if user['status'] == 'denied':
+        status_msg = (
+            'This account was not approved. Contact an admin if you think '
+            'that is a mistake.'
+        )
+    else:
+        status_msg = (
+            'Your account is waiting for an admin to approve it. '
+            'You cannot use chat or staff tools yet.'
+        )
+    page = read_html('pending.html')
+    return (
+        page
+        .replace('__STATUS_MSG__', html.escape(status_msg))
+        .replace('__EMAIL__', html.escape(user['email']))
+        .replace('__ROLE__', html.escape(user['role']))
+    )
 
 
 @app.route('/logout', methods=['POST'])
@@ -244,26 +394,236 @@ def logout():
     return redirect(url_for('login_page'))
 
 
+def _account_rows(users, pending=False):
+    if not users:
+        return '<p class="empty">None.</p>'
+    rows = [
+        '<table class="accounts"><thead><tr>'
+        '<th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>'
+    ]
+    for u in users:
+        actions = ''
+        if pending:
+            actions = (
+                '<div class="row-actions">'
+                f'<form method="POST" action="/admin/approve">'
+                f'<input type="hidden" name="user_id" value="{int(u["id"])}"/>'
+                f'<button class="btn-ok" type="submit">Approve</button></form>'
+                f'<form method="POST" action="/admin/deny">'
+                f'<input type="hidden" name="user_id" value="{int(u["id"])}"/>'
+                f'<button class="btn-no" type="submit">Deny</button></form>'
+                '</div>'
+            )
+        rows.append(
+            '<tr>'
+            f'<td>{html.escape(u["email"])}</td>'
+            f'<td>{html.escape(u["role"])}</td>'
+            f'<td>{html.escape(u["status"])}</td>'
+            f'<td>{actions}</td>'
+            '</tr>'
+        )
+    rows.append('</tbody></table>')
+    return ''.join(rows)
+
+
+@app.route('/admin')
+@approved_required('admin')
+def admin_page():
+    with get_db() as conn:
+        pending = conn.execute(
+            "SELECT * FROM users WHERE status = 'pending' ORDER BY created_at"
+        ).fetchall()
+        everyone = conn.execute(
+            'SELECT * FROM users ORDER BY created_at'
+        ).fetchall()
+    page = read_html('admin.html')
+    flash = request.args.get('flash', '')
+    return (
+        page
+        .replace('__FLASH__', html.escape(flash) if flash else '')
+        .replace('__PENDING__', _account_rows(pending, pending=True))
+        .replace('__ALL__', _account_rows(everyone, pending=False))
+    )
+
+
+def _set_status(user_id, status):
+    with get_db() as conn:
+        conn.execute(
+            'UPDATE users SET status = ? WHERE id = ? AND role != ?',
+            (status, user_id, 'admin')
+        )
+
+
+@app.route('/admin/approve', methods=['POST'])
+@approved_required('admin')
+def admin_approve():
+    try:
+        user_id = int(request.form.get('user_id', '0'))
+    except ValueError:
+        user_id = 0
+    _set_status(user_id, 'approved')
+    return redirect(url_for('admin_page', flash='Account approved.'))
+
+
+@app.route('/admin/deny', methods=['POST'])
+@approved_required('admin')
+def admin_deny():
+    try:
+        user_id = int(request.form.get('user_id', '0'))
+    except ValueError:
+        user_id = 0
+    _set_status(user_id, 'denied')
+    return redirect(url_for('admin_page', flash='Account denied.'))
+
+
+def _safe_knowledge_file(name):
+    if name not in KNOWLEDGE_FILES:
+        return None
+    path = os.path.realpath(os.path.join(KNOWLEDGE_DIR, name))
+    root = os.path.realpath(KNOWLEDGE_DIR)
+    if not path.startswith(root + os.sep):
+        return None
+    return path
+
+
+@app.route('/staff')
+@approved_required('staff')
+def staff_page():
+    filename = request.args.get('file', 'library.md')
+    if filename not in KNOWLEDGE_FILES:
+        filename = 'library.md'
+    path = _safe_knowledge_file(filename)
+    content = ''
+    if path and os.path.isfile(path):
+        with open(path, encoding='utf-8') as f:
+            content = f.read()
+
+    links = []
+    for name in KNOWLEDGE_FILES:
+        active = ' active' if name == filename else ''
+        links.append(
+            f'<a class="{active.strip()}" href="/staff?file={html.escape(name)}">'
+            f'{html.escape(name)}</a>'
+        )
+
+    with get_db() as conn:
+        faqs = conn.execute(
+            'SELECT id, question, answer FROM faqs ORDER BY id DESC'
+        ).fetchall()
+    faq_html = []
+    if not faqs:
+        faq_html.append('<p class="empty">No FAQs yet.</p>')
+    for faq in faqs:
+        faq_html.append(
+            '<div class="faq-item">'
+            f'<form method="POST" action="/staff/faq/update">'
+            f'<input type="hidden" name="faq_id" value="{int(faq["id"])}"/>'
+            f'<input type="text" name="question" value="{html.escape(faq["question"], quote=True)}" required/>'
+            f'<textarea name="answer" rows="3" required>{html.escape(faq["answer"])}</textarea>'
+            f'<button class="submit-btn" type="submit">Save FAQ</button></form>'
+            f'<form method="POST" action="/staff/faq/delete" style="display:inline;">'
+            f'<input type="hidden" name="faq_id" value="{int(faq["id"])}"/>'
+            f'<button class="submit-btn danger" type="submit">Delete</button></form>'
+            '</div>'
+        )
+
+    page = read_html('staff.html')
+    flash = request.args.get('flash', '')
+    return (
+        page
+        .replace('__FLASH__', html.escape(flash) if flash else '')
+        .replace('__FILE_LINKS__', ''.join(links))
+        .replace('__FILENAME__', html.escape(filename))
+        .replace('__FILE_CONTENT__', html.escape(content))
+        .replace('__FAQS__', ''.join(faq_html))
+    )
+
+
+@app.route('/staff/save-file', methods=['POST'])
+@approved_required('staff')
+def staff_save_file():
+    filename = request.form.get('filename', '')
+    path = _safe_knowledge_file(filename)
+    if not path:
+        return redirect(url_for('staff_page', flash='Invalid file.'))
+    content = request.form.get('content', '')
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    refresh_knowledge()
+    return redirect(url_for('staff_page', file=filename, flash=f'Saved {filename}.'))
+
+
+@app.route('/staff/faq/add', methods=['POST'])
+@approved_required('staff')
+def staff_faq_add():
+    question = request.form.get('question', '').strip()
+    answer = request.form.get('answer', '').strip()
+    if question and answer:
+        with get_db() as conn:
+            conn.execute(
+                'INSERT INTO faqs (question, answer) VALUES (?, ?)',
+                (question[:500], answer[:4000])
+            )
+    return redirect(url_for('staff_page', flash='FAQ added.'))
+
+
+@app.route('/staff/faq/update', methods=['POST'])
+@approved_required('staff')
+def staff_faq_update():
+    try:
+        faq_id = int(request.form.get('faq_id', '0'))
+    except ValueError:
+        faq_id = 0
+    question = request.form.get('question', '').strip()
+    answer = request.form.get('answer', '').strip()
+    if faq_id and question and answer:
+        with get_db() as conn:
+            conn.execute(
+                'UPDATE faqs SET question = ?, answer = ?, updated_at = strftime("%s","now") WHERE id = ?',
+                (question[:500], answer[:4000], faq_id)
+            )
+    return redirect(url_for('staff_page', flash='FAQ updated.'))
+
+
+@app.route('/staff/faq/delete', methods=['POST'])
+@approved_required('staff')
+def staff_faq_delete():
+    try:
+        faq_id = int(request.form.get('faq_id', '0'))
+    except ValueError:
+        faq_id = 0
+    if faq_id:
+        with get_db() as conn:
+            conn.execute('DELETE FROM faqs WHERE id = ?', (faq_id,))
+    return redirect(url_for('staff_page', flash='FAQ deleted.'))
+
+
 # ── App routes ────────────────────────────────────────────────
 @app.route('/')
-@login_required
+@approved_required('student', 'staff', 'admin')
 def index():
-    with open(os.path.join(os.path.dirname(__file__), 'index.html')) as f:
-        return f.read()
+    user = current_user()
+    page = read_html('index.html')
+    return page.replace('__ROLE_NAV__', role_nav(user))
 
 
 @app.route('/csubot.css')
 def stylesheet():
-    return send_from_directory(os.path.dirname(__file__), 'csubot.css')
+    return send_from_directory(ROOT, 'csubot.css')
+
+
+@app.route('/panel.css')
+def panel_stylesheet():
+    return send_from_directory(ROOT, 'panel.css')
 
 
 @app.route('/csubot.js')
 def script():
-    return send_from_directory(os.path.dirname(__file__), 'csubot.js')
+    return send_from_directory(ROOT, 'csubot.js')
 
 
 @app.route('/chat', methods=['POST'])
-@login_required
+@approved_required('student', 'staff', 'admin')
 def chat():
     ip = request.headers.get('X-Forwarded-For', request.remote_addr)
     if is_rate_limited(ip):

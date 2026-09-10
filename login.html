@@ -147,12 +147,20 @@
       font-family: var(--font-mono);
     }
 
-    .footer {
-      text-align: center;
-      margin-top: 24px;
-      font-size: 12px;
-      color: var(--muted);
-      font-family: var(--font-mono);
+    .footer a {
+      color: var(--blue);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .notice-msg {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-top: 14px;
     }
   </style>
 </head>
@@ -204,11 +212,13 @@
 
   </form>
 
+  <div class="notice-msg" id="noticeMsg" style="display:none;">__NOTICE__</div>
+
   <!-- Error message injected by Flask via string replace -->
   <div class="error-msg" id="errorMsg" style="display:none;">__ERROR__</div>
 
   <div class="footer">
-    Access is restricted to authorized users only.
+    Need an account? <a href="/signup">Request access</a>
   </div>
 </div>
 

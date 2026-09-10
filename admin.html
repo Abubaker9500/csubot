@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CSUBot — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="csubot.css"/>
+  <link rel="stylesheet" href="panel.css"/>
+</head>
+<body class="panel-body">
+<header>
+  <div class="header-title">CSU<span>Bot</span> Admin</div>
+  <div class="header-actions">
+    <a class="config-btn" href="/">Chat</a>
+    <form method="POST" action="/logout" style="display:inline;">
+      <button type="submit" class="config-btn">Sign out</button>
+    </form>
+  </div>
+</header>
+<main class="panel">
+  <h1>Approve accounts</h1>
+  <p class="lede">Students can chat after approval. Staff can edit library hours, dining hours, and FAQs after approval.</p>
+  <div class="flash">__FLASH__</div>
+
+  <h2>Pending</h2>
+  <div class="table-wrap">__PENDING__</div>
+
+  <h2>All accounts</h2>
+  <div class="table-wrap">__ALL__</div>
+</main>
+</body>
+</html>

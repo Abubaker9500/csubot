@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CSUBot — Staff knowledge</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="csubot.css"/>
+  <link rel="stylesheet" href="panel.css"/>
+</head>
+<body class="panel-body">
+<header>
+  <div class="header-title">CSU<span>Bot</span> Staff</div>
+  <div class="header-actions">
+    <a class="config-btn" href="/">Chat</a>
+    <form method="POST" action="/logout" style="display:inline;">
+      <button type="submit" class="config-btn">Sign out</button>
+    </form>
+  </div>
+</header>
+<main class="panel">
+  <h1>Campus knowledge</h1>
+  <p class="lede">Update hours and facts the chatbot uses. Changes apply to the next question. Do not put this information into fine-tuning.</p>
+  <div class="flash">__FLASH__</div>
+
+  <h2>Knowledge files</h2>
+  <div class="file-tabs">__FILE_LINKS__</div>
+  <form method="POST" action="/staff/save-file">
+    <input type="hidden" name="filename" value="__FILENAME__"/>
+    <label class="field-label" for="content">Editing __FILENAME__</label>
+    <textarea id="content" name="content" rows="18">__FILE_CONTENT__</textarea>
+    <button type="submit" class="submit-btn">Save file</button>
+  </form>
+
+  <h2>Frequent questions</h2>
+  <p class="lede">Add a question students ask often and the answer staff want the bot to use.</p>
+  <form class="faq-add" method="POST" action="/staff/faq/add">
+    <input type="text" name="question" placeholder="Question" required/>
+    <textarea name="answer" rows="3" placeholder="Expected answer" required></textarea>
+    <button type="submit" class="submit-btn">Add FAQ</button>
+  </form>
+  <div class="faq-list">__FAQS__</div>
+</main>
+</body>
+</html>
