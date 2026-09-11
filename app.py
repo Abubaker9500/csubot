@@ -3,7 +3,7 @@ CSUBot - Flask Backend with V1 Auth
 - SQLite user store, no flat files
 - bcrypt cost 12
 - Email-only identity, no username
-- Roles: student (chat), staff (RAG/FAQ), admin (approve accounts)
+- Roles: student (chat), staff (RAG/FAQ), admin (approve, deny, and ban accounts)
 - Form POST login, not JSON
 - Client-stored server-signed session cookie (NOT server-side store)
 - session.clear() on login (session fixation prevention)
@@ -47,7 +47,8 @@ ROOT             = os.path.dirname(__file__)
 DB_PATH          = os.path.join(ROOT, 'csubot.db')
 KNOWLEDGE_DIR    = os.path.join(ROOT, 'knowledge')
 KNOWLEDGE_FILES  = (
-    'about.md', 'library.md', 'dining.md', 'calendar.md', 'campus.md'
+    'about.md', 'library.md', 'dining.md', 'calendar.md', 'campus.md',
+    'grades.md',
 )
 SECRET_KEY       = os.environ.get('CSUBOT_SECRET', 'CHANGE_THIS_IN_PRODUCTION')
 SESSION_HOURS    = 8            # fixed lifetime, no sliding window
@@ -70,7 +71,7 @@ app.config.update(
 )
 
 CORS(app,
-     origins=['https://cs.csub.edu', 'http://localhost'],
+     origins=['https://cs.csub.edu', 'http://localhost', 'http://127.0.0.1', 'http://localhost:5001', 'http://127.0.0.1:5001'],
      supports_credentials=True)
 
 # ── Database ──────────────────────────────────────────────────
@@ -214,7 +215,13 @@ def approved_required(*roles):
                 return redirect(url_for('login_page'))
             if user['status'] != 'approved':
                 if request.is_json:
-                    return jsonify({'error': 'Account pending approval.'}), 403
+                    if user['status'] == 'banned':
+                        err = 'This account has been banned.'
+                    elif user['status'] == 'denied':
+                        err = 'This account was not approved.'
+                    else:
+                        err = 'Account pending approval.'
+                    return jsonify({'error': err}), 403
                 return redirect(url_for('pending_page'))
             if roles and user['role'] not in roles:
                 if request.is_json:
@@ -228,6 +235,7 @@ def role_nav(user):
     links = []
     if user['role'] == 'admin':
         links.append('<a class="config-btn" href="/admin">Approve users</a>')
+        links.append('<a class="config-btn" href="/staff">Knowledge</a>')
     if user['role'] == 'staff':
         links.append('<a class="config-btn" href="/staff">Knowledge</a>')
     return ''.join(links)
@@ -303,6 +311,9 @@ def login():
     if user['status'] == 'denied':
         return redirect(url_for('login_page',
             error='This account was not approved. Contact an admin.'))
+    if user['status'] == 'banned':
+        return redirect(url_for('login_page',
+            error='This account has been banned.'))
 
     # ── Success ───────────────────────────────────────────────
     record_attempt(email, ip, success=True)
@@ -366,7 +377,11 @@ def pending_page():
         return redirect(url_for('login_page'))
     if user['status'] == 'approved':
         return redirect_for_user(user)
-    if user['status'] == 'denied':
+    if user['status'] == 'banned':
+        status_msg = (
+            'This account has been banned. You cannot use chat or staff tools.'
+        )
+    elif user['status'] == 'denied':
         status_msg = (
             'This account was not approved. Contact an admin if you think '
             'that is a mistake.'
@@ -397,23 +412,43 @@ def logout():
 def _account_rows(users, pending=False):
     if not users:
         return '<p class="empty">None.</p>'
+    me = current_user()
+    me_id = me['id'] if me else None
     rows = [
         '<table class="accounts"><thead><tr>'
         '<th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>'
     ]
     for u in users:
+        uid = int(u['id'])
         actions = ''
         if pending:
             actions = (
                 '<div class="row-actions">'
                 f'<form method="POST" action="/admin/approve">'
-                f'<input type="hidden" name="user_id" value="{int(u["id"])}"/>'
+                f'<input type="hidden" name="user_id" value="{uid}"/>'
                 f'<button class="btn-ok" type="submit">Approve</button></form>'
                 f'<form method="POST" action="/admin/deny">'
-                f'<input type="hidden" name="user_id" value="{int(u["id"])}"/>'
+                f'<input type="hidden" name="user_id" value="{uid}"/>'
                 f'<button class="btn-no" type="submit">Deny</button></form>'
                 '</div>'
             )
+        elif u['role'] != 'admin' and uid != me_id:
+            if u['status'] == 'banned':
+                actions = (
+                    '<div class="row-actions">'
+                    f'<form method="POST" action="/admin/unban">'
+                    f'<input type="hidden" name="user_id" value="{uid}"/>'
+                    f'<button class="btn-ok" type="submit">Unban</button></form>'
+                    '</div>'
+                )
+            elif u['status'] == 'approved':
+                actions = (
+                    '<div class="row-actions">'
+                    f'<form method="POST" action="/admin/ban">'
+                    f'<input type="hidden" name="user_id" value="{uid}"/>'
+                    f'<button class="btn-no" type="submit">Ban</button></form>'
+                    '</div>'
+                )
         rows.append(
             '<tr>'
             f'<td>{html.escape(u["email"])}</td>'
@@ -476,6 +511,28 @@ def admin_deny():
     return redirect(url_for('admin_page', flash='Account denied.'))
 
 
+@app.route('/admin/ban', methods=['POST'])
+@approved_required('admin')
+def admin_ban():
+    try:
+        user_id = int(request.form.get('user_id', '0'))
+    except ValueError:
+        user_id = 0
+    _set_status(user_id, 'banned')
+    return redirect(url_for('admin_page', flash='Account banned.'))
+
+
+@app.route('/admin/unban', methods=['POST'])
+@approved_required('admin')
+def admin_unban():
+    try:
+        user_id = int(request.form.get('user_id', '0'))
+    except ValueError:
+        user_id = 0
+    _set_status(user_id, 'approved')
+    return redirect(url_for('admin_page', flash='Account unbanned.'))
+
+
 def _safe_knowledge_file(name):
     if name not in KNOWLEDGE_FILES:
         return None
@@ -487,7 +544,7 @@ def _safe_knowledge_file(name):
 
 
 @app.route('/staff')
-@approved_required('staff')
+@approved_required('staff', 'admin')
 def staff_page():
     filename = request.args.get('file', 'library.md')
     if filename not in KNOWLEDGE_FILES:
@@ -529,8 +586,12 @@ def staff_page():
 
     page = read_html('staff.html')
     flash = request.args.get('flash', '')
+    admin_link = ''
+    if current_user()['role'] == 'admin':
+        admin_link = '<a class="config-btn" href="/admin">Approve users</a>'
     return (
         page
+        .replace('__ADMIN_LINK__', admin_link)
         .replace('__FLASH__', html.escape(flash) if flash else '')
         .replace('__FILE_LINKS__', ''.join(links))
         .replace('__FILENAME__', html.escape(filename))
@@ -540,7 +601,7 @@ def staff_page():
 
 
 @app.route('/staff/save-file', methods=['POST'])
-@approved_required('staff')
+@approved_required('staff', 'admin')
 def staff_save_file():
     filename = request.form.get('filename', '')
     path = _safe_knowledge_file(filename)
@@ -554,7 +615,7 @@ def staff_save_file():
 
 
 @app.route('/staff/faq/add', methods=['POST'])
-@approved_required('staff')
+@approved_required('staff', 'admin')
 def staff_faq_add():
     question = request.form.get('question', '').strip()
     answer = request.form.get('answer', '').strip()
@@ -568,7 +629,7 @@ def staff_faq_add():
 
 
 @app.route('/staff/faq/update', methods=['POST'])
-@approved_required('staff')
+@approved_required('staff', 'admin')
 def staff_faq_update():
     try:
         faq_id = int(request.form.get('faq_id', '0'))
@@ -586,7 +647,7 @@ def staff_faq_update():
 
 
 @app.route('/staff/faq/delete', methods=['POST'])
-@approved_required('staff')
+@approved_required('staff', 'admin')
 def staff_faq_delete():
     try:
         faq_id = int(request.form.get('faq_id', '0'))

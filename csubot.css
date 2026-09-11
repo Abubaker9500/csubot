@@ -194,6 +194,32 @@ a.config-btn {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
+.message.ai .bubble a {
+  color: var(--blue);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+}
+
+.message.ai .bubble a:hover {
+  color: #001f5c;
+}
+
+.message.ai .bubble ul,
+.message.ai .bubble ol {
+  margin: 6px 0 4px 1.2em;
+  padding: 0;
+}
+
+.message.ai .bubble li {
+  margin: 2px 0;
+}
+
+.message.ai .bubble strong {
+  font-weight: 600;
+}
+
 /* Thinking block */
 .think-block {
   background: #fffbea;

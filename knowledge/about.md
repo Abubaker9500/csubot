@@ -33,14 +33,16 @@ The main library is the Walter W. Stiern Library, named for State Senator Walter
 
 ## Academics
 
-CSUB has four academic colleges:
+Students can major in undergraduate and graduate degree programs across four academic colleges:
 
 - Arts and Humanities
 - Business and Public Administration
 - Natural Sciences, Mathematics and Engineering
 - Social Sciences and Education
 
-The university offers dozens of undergraduate and graduate programs, plus education credential programs and doctoral programs in educational leadership and nursing practice. CSUB Extended Education offers professional development, certificates, and additional degree options.
+The university offers dozens of undergraduate and graduate programs, plus education credential programs and doctoral programs in educational leadership and nursing practice. Computer Science is in the College of Natural Sciences, Mathematics and Engineering. For the current list of majors, see https://www.csub.edu
+
+CSUB Extended Education offers professional development, certificates, and additional degree options.
 
 ## Athletics and student life
 

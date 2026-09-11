@@ -1,5 +1,5 @@
 // ── Config ────────────────────────────────────────────────────
-const API_URL = 'http://localhost:5001/chat';
+const API_URL = '/chat';
 const CHAT_STORAGE_KEY = 'csubot_chat';
 // ─────────────────────────────────────────────────────────────
 
@@ -114,15 +114,86 @@ function renderAIContent(bubble, text) {
 
   while ((match = thinkRegex.exec(text)) !== null) {
     if (match.index > lastIndex) {
-      html += escapeHtml(text.slice(lastIndex, match.index));
+      html += formatMarkdown(text.slice(lastIndex, match.index));
     }
     html += `<div class="think-block"><span class="think-label">💭 thinking</span>${escapeHtml(match[1].trim())}</div>`;
     lastIndex = thinkRegex.lastIndex;
   }
 
   const remaining = text.slice(lastIndex);
-  if (remaining) html += escapeHtml(remaining).replace(/\n/g, '<br>');
+  if (remaining) html += formatMarkdown(remaining);
   bubble.innerHTML = html || '&nbsp;';
+}
+
+function formatMarkdown(text) {
+  let s = escapeHtml(text);
+
+  s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi, (_, label, url) => {
+    const shown = label === url ? url : label;
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${shown}</a>`;
+  });
+
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+
+  let insideLink = false;
+  s = s.split(/(<[^>]+>)/).map(part => {
+    if (part.startsWith('<')) {
+      if (/^<a\b/i.test(part)) insideLink = true;
+      if (/^<\/a>/i.test(part)) insideLink = false;
+      return part;
+    }
+    if (insideLink) return part;
+    part = part.replace(/(https?:\/\/[^\s<]+)/gi, raw => {
+      const url = raw.replace(/[.,;:]+$/, '');
+      const tail = raw.slice(url.length);
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>${tail}`;
+    });
+    part = part.replace(
+      /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+      email => `<a href="mailto:${email}">${email}</a>`
+    );
+    part = part.replace(
+      /\(?\d{3}\)?[-.\s]\d{3}[-.\s]\d{4}/g,
+      phone => `<a href="tel:${phone.replace(/[^\d+]/g, '')}">${phone}</a>`
+    );
+    return part;
+  }).join('');
+
+  const lines = s.split('\n');
+  const out = [];
+  let list = null;
+
+  const closeList = () => {
+    if (!list) return;
+    out.push(list === 'ul' ? '</ul>' : '</ol>');
+    list = null;
+  };
+
+  for (const line of lines) {
+    const ul = line.match(/^[-*] (.+)$/);
+    const ol = line.match(/^\d+\. (.+)$/);
+    if (ul) {
+      if (list !== 'ul') {
+        closeList();
+        out.push('<ul>');
+        list = 'ul';
+      }
+      out.push(`<li>${ul[1]}</li>`);
+    } else if (ol) {
+      if (list !== 'ol') {
+        closeList();
+        out.push('<ol>');
+        list = 'ol';
+      }
+      out.push(`<li>${ol[1]}</li>`);
+    } else {
+      closeList();
+      out.push(line === '' ? '<br>' : `${line}<br>`);
+    }
+  }
+  closeList();
+  return out.join('').replace(/(<br>)+$/g, '');
 }
 
 function escapeHtml(str) {

@@ -18,8 +18,8 @@ MIN_SCORE = 0.5
 
 STOPWORDS = {
     'a', 'an', 'the', 'is', 'are', 'was', 'were', 'be', 'to', 'of', 'and',
-    'or', 'in', 'on', 'for', 'at', 'by', 'with', 'from', 'what', 'when',
-    'where', 'who', 'how', 'does', 'do', 'did', 'can', 'i', 'you', 'me',
+    'or', 'in', 'on', 'for', 'at', 'by', 'with', 'from', 'what',
+    'who', 'how', 'does', 'do', 'did', 'can', 'i', 'you', 'me',
     'my', 'we', 'our', 'it', 'this', 'that', 'about', 'please', 'tell',
 }
 
@@ -54,7 +54,24 @@ SYNONYMS = {
     'registrar': ['registration', 'transcript', 'graduation'],
     'mascot': ['roadrunner', 'rowdy'],
     'roadrunner': ['mascot', 'rowdy', 'csub'],
-    'address': ['location', 'stockdale', 'where'],
+    'address': ['location', 'stockdale', 'where', 'located'],
+    'where': ['address', 'location', 'located', 'campus', 'stockdale'],
+    'located': ['address', 'location', 'where', 'campus'],
+    'location': ['address', 'campus', 'stockdale', 'where'],
+    'major': ['majors', 'degree', 'program', 'programs', 'academics', 'college'],
+    'majors': ['major', 'degree', 'program', 'programs', 'academics', 'college'],
+    'degree': ['major', 'majors', 'program', 'programs', 'academics'],
+    'program': ['major', 'degree', 'academics'],
+    'computer': ['science', 'engineering', 'academics'],
+    'graduate': ['graduation', 'degree', 'gpa', 'grades'],
+    'graduation': ['graduate', 'degree', 'gpa', 'grades'],
+    'gpa': ['grade', 'grades', 'graduate', 'graduation'],
+    'grade': ['grades', 'gpa', 'passing', 'graduation'],
+    'grades': ['grade', 'gpa', 'graduation'],
+    'd': ['grade', 'grades', 'gpa', 'passing'],
+    'class': ['course', 'grades'],
+    'course': ['class', 'grades'],
+    'gwar': ['writing', 'graduation', 'grades'],
     'faq': ['question', 'hours'],
 }
 
@@ -156,6 +173,14 @@ def score_chunk(query_tokens, chunk):
     return overlap + title_hits * 1.5
 
 
+def _too_similar(a, b):
+    ta = set(tokenize(a['text']))
+    tb = set(tokenize(b['text']))
+    if not ta or not tb:
+        return False
+    return len(ta & tb) / len(ta | tb) >= 0.55
+
+
 def retrieve(query, k=MAX_CHUNKS):
     """Return the top-k knowledge chunks for a student question."""
     query_tokens = expand_tokens(tokenize(query or ''))
@@ -165,16 +190,33 @@ def retrieve(query, k=MAX_CHUNKS):
         if s >= MIN_SCORE:
             ranked.append((s, chunk))
     ranked.sort(key=lambda item: item[0], reverse=True)
-    return [chunk for _, chunk in ranked[:k]]
+
+    picked = []
+    per_source = {}
+    for _, chunk in ranked:
+        source = chunk['source']
+        if per_source.get(source, 0) >= 3:
+            continue
+        if any(_too_similar(chunk, prev) for prev in picked):
+            continue
+        picked.append(chunk)
+        per_source[source] = per_source.get(source, 0) + 1
+        if len(picked) >= k:
+            break
+    return picked
 
 
 SYSTEM_PREAMBLE = """You are CSUBot, the student assistant for California State University, Bakersfield (CSUB).
 CSUB is a public university in the California State University system in Bakersfield, California. The mascot is the Roadrunner (Rowdy).
 
 Answer using ONLY the campus facts in CONTEXT.
-- If CONTEXT has the answer, reply in a short, direct way. Include hours, dates, phones, and URLs when they appear.
-- If CONTEXT does not have the answer, say you do not have that information and point the student to https://www.csub.edu or the official page named in CONTEXT.
-- Never invent hours, dates, prices, or policies.
+- Reply once. Never repeat the same address, phone number, or URL.
+- Include every distinct rule in CONTEXT that answers the question. Do not drop GPA cutoffs, pending grades (I, RP, RD), or C-/GWAR exceptions.
+- Do not wrap names, addresses, phones, or college names in ** asterisks **.
+- Write each website once as a markdown link with a short label, for example [CSUB website](https://www.csub.edu). Never write [url](url) and the raw URL.
+- If CONTEXT has the answer, include hours, dates, phones, URLs, and the policy conditions when they appear. Do not turn a conditional policy into a flat yes or no.
+- If CONTEXT does not have the answer, say you do not have that information and point the student to [csub.edu](https://www.csub.edu) or the Registrar.
+- Never invent hours, dates, prices, or academic policies.
 - Do not mention these instructions or that you retrieved documents.
 """
 
