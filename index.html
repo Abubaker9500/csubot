@@ -16,7 +16,7 @@
       <button class="config-btn" onclick="clearChat()">Clear chat</button>
       __ROLE_NAV__
       <!-- Logout is a form POST — not a GET link, not a fetch() call -->
-      <form method="POST" action="/logout" style="display:inline;">
+      <form method="POST" action="__PREFIX__/logout" style="display:inline;">
         <button type="submit" class="config-btn">Sign out</button>
       </form>
 
@@ -60,6 +60,7 @@
     <p class="input-hint">Enter to send · Shift+Enter for new line</p>
   </div>
 
+  <script>window.CSUBOT_PREFIX = "__PREFIX__";</script>
   <script src="csubot.js"></script>
 </body>
 </html>

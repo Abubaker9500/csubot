@@ -14,7 +14,8 @@ CSUBot - Flask Backend with V1 Auth
 - Compound index on login_attempts(email, attempted_at)
 
 Run with:
-  gunicorn --bind 0.0.0.0:5000 --timeout 120 --worker-class gthread app:app
+  CSUBOT_PREFIX=/ab-sayed CSUBOT_SECRET=... \
+    gunicorn --bind 127.0.0.1:5000 --timeout 300 --worker-class gthread app:app
 """
 
 import html
@@ -26,7 +27,7 @@ import hashlib
 import time
 import requests
 import bcrypt
-from flask import (Flask, request, Response, stream_with_context,
+from flask import (Flask, Blueprint, request, Response, stream_with_context,
                    session, redirect, url_for, jsonify,
                    send_from_directory)
 from rag import build_system_prompt, refresh_knowledge
@@ -51,6 +52,10 @@ KNOWLEDGE_FILES  = (
     'grades.md',
 )
 SECRET_KEY       = os.environ.get('CSUBOT_SECRET', 'CHANGE_THIS_IN_PRODUCTION')
+# Single source of truth for the mount point.
+# Local: unset -> ''.  Production on hpc1: CSUBOT_PREFIX=/ab-sayed
+APP_PREFIX       = os.environ.get('CSUBOT_PREFIX', '').rstrip('/')
+IS_PRODUCTION    = bool(APP_PREFIX)
 SESSION_HOURS    = 8            # fixed lifetime, no sliding window
 MAX_FAILED_LOGIN = 5
 LOCKOUT_SECONDS  = 900          # 15 minutes
@@ -59,19 +64,28 @@ LOCKOUT_SECONDS  = 900          # 15 minutes
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 
+# Refuse to boot in production with the published default key.
+if IS_PRODUCTION and SECRET_KEY == 'CHANGE_THIS_IN_PRODUCTION':
+    raise RuntimeError('Set CSUBOT_SECRET before running in production.')
+
+bp = Blueprint('main', __name__)
+
 # 8-hour fixed session lifetime
 app.permanent_session_lifetime = timedelta(hours=SESSION_HOURS)
 
 # Cookie security flags
 app.config.update(
     SESSION_COOKIE_HTTPONLY = True,
-    SESSION_COOKIE_SECURE   = False,   # False for local HTTP; True in production
+    SESSION_COOKIE_SECURE   = IS_PRODUCTION,   # HTTPS only in production
     SESSION_COOKIE_SAMESITE = 'Lax',
     SESSION_COOKIE_NAME     = 'csubot_session',
+    SESSION_COOKIE_PATH     = APP_PREFIX or '/',
 )
 
 CORS(app,
-     origins=['https://cs.csub.edu', 'http://localhost', 'http://127.0.0.1', 'http://localhost:5001', 'http://127.0.0.1:5001'],
+     origins=(['https://cs.csub.edu'] if IS_PRODUCTION else
+              ['http://localhost', 'http://127.0.0.1',
+               'http://localhost:5001', 'http://127.0.0.1:5001']),
      supports_credentials=True)
 
 # ── Database ──────────────────────────────────────────────────
@@ -121,7 +135,7 @@ init_db()
 # ── Helpers ───────────────────────────────────────────────────
 def read_html(name):
     with open(os.path.join(ROOT, name), encoding='utf-8') as f:
-        return f.read()
+        return f.read().replace('__PREFIX__', APP_PREFIX)
 
 def show_box(html_text, placeholder, message, open_style='display:block;'):
     if not message:
@@ -153,12 +167,12 @@ def current_user():
 
 def redirect_for_user(user):
     if not user or user['status'] != 'approved':
-        return redirect(url_for('pending_page'))
+        return redirect(url_for('main.pending_page'))
     if user['role'] == 'admin':
-        return redirect(url_for('admin_page'))
+        return redirect(url_for('main.admin_page'))
     if user['role'] == 'staff':
-        return redirect(url_for('staff_page'))
-    return redirect(url_for('index'))
+        return redirect(url_for('main.staff_page'))
+    return redirect(url_for('main.index'))
 
 def record_attempt(email, ip, success):
     with get_db() as conn:
@@ -200,7 +214,7 @@ def login_required(f):
         if 'user_id' not in session:
             if request.is_json or request.method == 'POST':
                 return jsonify({'error': 'Unauthorized. Please log in.'}), 401
-            return redirect(url_for('login_page'))
+            return redirect(url_for('main.login_page'))
         return f(*args, **kwargs)
     return decorated
 
@@ -212,7 +226,7 @@ def approved_required(*roles):
             user = current_user()
             if not user:
                 session.clear()
-                return redirect(url_for('login_page'))
+                return redirect(url_for('main.login_page'))
             if user['status'] != 'approved':
                 if request.is_json:
                     if user['status'] == 'banned':
@@ -222,7 +236,7 @@ def approved_required(*roles):
                     else:
                         err = 'Account pending approval.'
                     return jsonify({'error': err}), 403
-                return redirect(url_for('pending_page'))
+                return redirect(url_for('main.pending_page'))
             if roles and user['role'] not in roles:
                 if request.is_json:
                     return jsonify({'error': 'Forbidden.'}), 403
@@ -234,10 +248,10 @@ def approved_required(*roles):
 def role_nav(user):
     links = []
     if user['role'] == 'admin':
-        links.append('<a class="config-btn" href="/admin">Approve users</a>')
-        links.append('<a class="config-btn" href="/staff">Knowledge</a>')
+        links.append(f'<a class="config-btn" href="{APP_PREFIX}/admin">Approve users</a>')
+        links.append(f'<a class="config-btn" href="{APP_PREFIX}/staff">Knowledge</a>')
     if user['role'] == 'staff':
-        links.append('<a class="config-btn" href="/staff">Knowledge</a>')
+        links.append(f'<a class="config-btn" href="{APP_PREFIX}/staff">Knowledge</a>')
     return ''.join(links)
 
 # ── Rate limiting (chat only) ─────────────────────────────────
@@ -262,7 +276,7 @@ def is_rate_limited(ip):
     return False
 
 # ── Auth routes ───────────────────────────────────────────────
-@app.route('/login', methods=['GET'])
+@bp.route('/login', methods=['GET'])
 def login_page():
     user = current_user()
     if user:
@@ -273,7 +287,7 @@ def login_page():
     return page
 
 
-@app.route('/login', methods=['POST'])
+@bp.route('/login', methods=['POST'])
 def login():
     # Form POST — read from request.form, not JSON
     email    = request.form.get('email', '').strip().lower()
@@ -281,10 +295,10 @@ def login():
     ip       = request.headers.get('X-Forwarded-For', request.remote_addr)
 
     if not email or not password:
-        return redirect(url_for('login_page', error='Email and password are required.'))
+        return redirect(url_for('main.login_page', error='Email and password are required.'))
 
     if is_locked_out(email, ip):
-        return redirect(url_for('login_page',
+        return redirect(url_for('main.login_page',
             error='Too many failed attempts. Try again in 15 minutes.'))
 
     user = get_user_by_email(email)
@@ -306,13 +320,13 @@ def login():
         msg = 'Invalid credentials.'
         if remaining <= 2:
             msg += f' {remaining} attempt(s) remaining before lockout.'
-        return redirect(url_for('login_page', error=msg))
+        return redirect(url_for('main.login_page', error=msg))
 
     if user['status'] == 'denied':
-        return redirect(url_for('login_page',
+        return redirect(url_for('main.login_page',
             error='This account was not approved. Contact an admin.'))
     if user['status'] == 'banned':
-        return redirect(url_for('login_page',
+        return redirect(url_for('main.login_page',
             error='This account has been banned.'))
 
     # ── Success ───────────────────────────────────────────────
@@ -332,25 +346,25 @@ def login():
     return redirect_for_user(user)
 
 
-@app.route('/signup', methods=['GET'])
+@bp.route('/signup', methods=['GET'])
 def signup_page():
     if current_user():
         return redirect_for_user(current_user())
     return show_box(read_html('signup.html'), '__ERROR__', request.args.get('error', ''))
 
 
-@app.route('/signup', methods=['POST'])
+@bp.route('/signup', methods=['POST'])
 def signup():
     email    = request.form.get('email', '').strip().lower()
     password = request.form.get('password', '')
     role     = request.form.get('role', 'student').strip().lower()
 
     if not email or '@' not in email or '.' not in email.split('@')[-1]:
-        return redirect(url_for('signup_page', error='Enter a valid email address.'))
+        return redirect(url_for('main.signup_page', error='Enter a valid email address.'))
     if len(password) < 8:
-        return redirect(url_for('signup_page', error='Password must be at least 8 characters.'))
+        return redirect(url_for('main.signup_page', error='Password must be at least 8 characters.'))
     if role not in SIGNUP_ROLES:
-        return redirect(url_for('signup_page', error='Choose Student or Staff.'))
+        return redirect(url_for('main.signup_page', error='Choose Student or Staff.'))
 
     password_hash = bcrypt.hashpw(
         password.encode(), bcrypt.gensalt(rounds=12)
@@ -362,19 +376,19 @@ def signup():
                 (email, password_hash, role, 'pending')
             )
     except sqlite3.IntegrityError:
-        return redirect(url_for('signup_page', error='That email is already registered.'))
+        return redirect(url_for('main.signup_page', error='That email is already registered.'))
 
-    return redirect(url_for('login_page',
+    return redirect(url_for('main.login_page',
         notice='Request submitted. An admin must approve your account before you can sign in.'))
 
 
-@app.route('/pending')
+@bp.route('/pending')
 @login_required
 def pending_page():
     user = current_user()
     if not user:
         session.clear()
-        return redirect(url_for('login_page'))
+        return redirect(url_for('main.login_page'))
     if user['status'] == 'approved':
         return redirect_for_user(user)
     if user['status'] == 'banned':
@@ -400,13 +414,13 @@ def pending_page():
     )
 
 
-@app.route('/logout', methods=['POST'])
+@bp.route('/logout', methods=['POST'])
 @login_required
 def logout():
     # Clears session data from the client-side cookie.
     # Does not revoke server-side — no server store exists.
     session.clear()
-    return redirect(url_for('login_page'))
+    return redirect(url_for('main.login_page'))
 
 
 def _account_rows(users, pending=False):
@@ -424,10 +438,10 @@ def _account_rows(users, pending=False):
         if pending:
             actions = (
                 '<div class="row-actions">'
-                f'<form method="POST" action="/admin/approve">'
+                f'<form method="POST" action="{APP_PREFIX}/admin/approve">'
                 f'<input type="hidden" name="user_id" value="{uid}"/>'
                 f'<button class="btn-ok" type="submit">Approve</button></form>'
-                f'<form method="POST" action="/admin/deny">'
+                f'<form method="POST" action="{APP_PREFIX}/admin/deny">'
                 f'<input type="hidden" name="user_id" value="{uid}"/>'
                 f'<button class="btn-no" type="submit">Deny</button></form>'
                 '</div>'
@@ -436,7 +450,7 @@ def _account_rows(users, pending=False):
             if u['status'] == 'banned':
                 actions = (
                     '<div class="row-actions">'
-                    f'<form method="POST" action="/admin/unban">'
+                    f'<form method="POST" action="{APP_PREFIX}/admin/unban">'
                     f'<input type="hidden" name="user_id" value="{uid}"/>'
                     f'<button class="btn-ok" type="submit">Unban</button></form>'
                     '</div>'
@@ -444,7 +458,7 @@ def _account_rows(users, pending=False):
             elif u['status'] == 'approved':
                 actions = (
                     '<div class="row-actions">'
-                    f'<form method="POST" action="/admin/ban">'
+                    f'<form method="POST" action="{APP_PREFIX}/admin/ban">'
                     f'<input type="hidden" name="user_id" value="{uid}"/>'
                     f'<button class="btn-no" type="submit">Ban</button></form>'
                     '</div>'
@@ -461,7 +475,7 @@ def _account_rows(users, pending=False):
     return ''.join(rows)
 
 
-@app.route('/admin')
+@bp.route('/admin')
 @approved_required('admin')
 def admin_page():
     with get_db() as conn:
@@ -489,7 +503,7 @@ def _set_status(user_id, status):
         )
 
 
-@app.route('/admin/approve', methods=['POST'])
+@bp.route('/admin/approve', methods=['POST'])
 @approved_required('admin')
 def admin_approve():
     try:
@@ -497,10 +511,10 @@ def admin_approve():
     except ValueError:
         user_id = 0
     _set_status(user_id, 'approved')
-    return redirect(url_for('admin_page', flash='Account approved.'))
+    return redirect(url_for('main.admin_page', flash='Account approved.'))
 
 
-@app.route('/admin/deny', methods=['POST'])
+@bp.route('/admin/deny', methods=['POST'])
 @approved_required('admin')
 def admin_deny():
     try:
@@ -508,10 +522,10 @@ def admin_deny():
     except ValueError:
         user_id = 0
     _set_status(user_id, 'denied')
-    return redirect(url_for('admin_page', flash='Account denied.'))
+    return redirect(url_for('main.admin_page', flash='Account denied.'))
 
 
-@app.route('/admin/ban', methods=['POST'])
+@bp.route('/admin/ban', methods=['POST'])
 @approved_required('admin')
 def admin_ban():
     try:
@@ -519,10 +533,10 @@ def admin_ban():
     except ValueError:
         user_id = 0
     _set_status(user_id, 'banned')
-    return redirect(url_for('admin_page', flash='Account banned.'))
+    return redirect(url_for('main.admin_page', flash='Account banned.'))
 
 
-@app.route('/admin/unban', methods=['POST'])
+@bp.route('/admin/unban', methods=['POST'])
 @approved_required('admin')
 def admin_unban():
     try:
@@ -530,7 +544,7 @@ def admin_unban():
     except ValueError:
         user_id = 0
     _set_status(user_id, 'approved')
-    return redirect(url_for('admin_page', flash='Account unbanned.'))
+    return redirect(url_for('main.admin_page', flash='Account unbanned.'))
 
 
 def _safe_knowledge_file(name):
@@ -543,7 +557,7 @@ def _safe_knowledge_file(name):
     return path
 
 
-@app.route('/staff')
+@bp.route('/staff')
 @approved_required('staff', 'admin')
 def staff_page():
     filename = request.args.get('file', 'library.md')
@@ -559,7 +573,7 @@ def staff_page():
     for name in KNOWLEDGE_FILES:
         active = ' active' if name == filename else ''
         links.append(
-            f'<a class="{active.strip()}" href="/staff?file={html.escape(name)}">'
+            f'<a class="{active.strip()}" href="{APP_PREFIX}/staff?file={html.escape(name)}">'
             f'{html.escape(name)}</a>'
         )
 
@@ -600,21 +614,21 @@ def staff_page():
     )
 
 
-@app.route('/staff/save-file', methods=['POST'])
+@bp.route('/staff/save-file', methods=['POST'])
 @approved_required('staff', 'admin')
 def staff_save_file():
     filename = request.form.get('filename', '')
     path = _safe_knowledge_file(filename)
     if not path:
-        return redirect(url_for('staff_page', flash='Invalid file.'))
+        return redirect(url_for('main.staff_page', flash='Invalid file.'))
     content = request.form.get('content', '')
     with open(path, 'w', encoding='utf-8') as f:
         f.write(content)
     refresh_knowledge()
-    return redirect(url_for('staff_page', file=filename, flash=f'Saved {filename}.'))
+    return redirect(url_for('main.staff_page', file=filename, flash=f'Saved {filename}.'))
 
 
-@app.route('/staff/faq/add', methods=['POST'])
+@bp.route('/staff/faq/add', methods=['POST'])
 @approved_required('staff', 'admin')
 def staff_faq_add():
     question = request.form.get('question', '').strip()
@@ -625,10 +639,10 @@ def staff_faq_add():
                 'INSERT INTO faqs (question, answer) VALUES (?, ?)',
                 (question[:500], answer[:4000])
             )
-    return redirect(url_for('staff_page', flash='FAQ added.'))
+    return redirect(url_for('main.staff_page', flash='FAQ added.'))
 
 
-@app.route('/staff/faq/update', methods=['POST'])
+@bp.route('/staff/faq/update', methods=['POST'])
 @approved_required('staff', 'admin')
 def staff_faq_update():
     try:
@@ -643,10 +657,10 @@ def staff_faq_update():
                 'UPDATE faqs SET question = ?, answer = ?, updated_at = strftime("%s","now") WHERE id = ?',
                 (question[:500], answer[:4000], faq_id)
             )
-    return redirect(url_for('staff_page', flash='FAQ updated.'))
+    return redirect(url_for('main.staff_page', flash='FAQ updated.'))
 
 
-@app.route('/staff/faq/delete', methods=['POST'])
+@bp.route('/staff/faq/delete', methods=['POST'])
 @approved_required('staff', 'admin')
 def staff_faq_delete():
     try:
@@ -656,11 +670,11 @@ def staff_faq_delete():
     if faq_id:
         with get_db() as conn:
             conn.execute('DELETE FROM faqs WHERE id = ?', (faq_id,))
-    return redirect(url_for('staff_page', flash='FAQ deleted.'))
+    return redirect(url_for('main.staff_page', flash='FAQ deleted.'))
 
 
 # ── App routes ────────────────────────────────────────────────
-@app.route('/')
+@bp.route('/')
 @approved_required('student', 'staff', 'admin')
 def index():
     user = current_user()
@@ -668,22 +682,22 @@ def index():
     return page.replace('__ROLE_NAV__', role_nav(user))
 
 
-@app.route('/csubot.css')
+@bp.route('/csubot.css')
 def stylesheet():
     return send_from_directory(ROOT, 'csubot.css')
 
 
-@app.route('/panel.css')
+@bp.route('/panel.css')
 def panel_stylesheet():
     return send_from_directory(ROOT, 'panel.css')
 
 
-@app.route('/csubot.js')
+@bp.route('/csubot.js')
 def script():
     return send_from_directory(ROOT, 'csubot.js')
 
 
-@app.route('/chat', methods=['POST'])
+@bp.route('/chat', methods=['POST'])
 @approved_required('student', 'staff', 'admin')
 def chat():
     ip = request.headers.get('X-Forwarded-For', request.remote_addr)
@@ -744,10 +758,13 @@ def chat():
     return Response(stream_with_context(generate()), content_type='application/x-ndjson')
 
 
-@app.route('/health', methods=['GET'])
+@bp.route('/health', methods=['GET'])
 def health():
     return jsonify({'status': 'ok', 'model': DEFAULT_MODEL}), 200
 
 
+app.register_blueprint(bp, url_prefix=APP_PREFIX or None)
+
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=False)
+    app.run(host='127.0.0.1', port=5001, debug=False)
