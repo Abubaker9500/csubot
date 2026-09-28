@@ -10,6 +10,16 @@ export CSUBOT_BIND=127.0.0.1
 export CSUBOT_PORT=5000
 export CSUBOT_COOKIE_SECURE=1
 
+if [[ -z "${CSUBOT_SECRET:-}" ]]; then
+  if [[ ! -f .csubot_secret ]]; then
+    python3 -c 'import secrets; print(secrets.token_hex(32))' > .csubot_secret
+    chmod 600 .csubot_secret
+    echo "Wrote a new CSUBOT_SECRET to .csubot_secret (gitignored)."
+  fi
+  CSUBOT_SECRET="$(cat .csubot_secret)"
+  export CSUBOT_SECRET
+fi
+
 if [[ ! -x .venv/bin/gunicorn ]]; then
   echo "Create .venv and pip install -r requirements.txt first." >&2
   exit 1

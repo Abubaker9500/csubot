@@ -9,3 +9,5 @@ csubot.db
 __pycache__/
 *.pyc
 .DS_Store
+*.patch
+.csubot_secret

@@ -1,5 +1,5 @@
 // ── Config ────────────────────────────────────────────────────
-const PREFIX = (typeof window !== 'undefined' && window.CSUBOT_PREFIX) ? window.CSUBOT_PREFIX : '';
+const PREFIX  = window.CSUBOT_PREFIX || '';
 const API_URL = PREFIX + '/chat';
 const CHAT_STORAGE_KEY = 'csubot_chat';
 // ─────────────────────────────────────────────────────────────
