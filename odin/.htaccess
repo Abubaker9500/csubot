@@ -1,0 +1,5 @@
+RewriteEngine On
+RewriteRule ^config\.php$ - [F,L]
+RewriteRule ^(proxy|index)\.php$ - [L]
+RewriteRule ^(.*)$ proxy.php [L,QSA]
+DirectoryIndex proxy.php index.php
