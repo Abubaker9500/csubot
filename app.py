@@ -13,8 +13,13 @@ CSUBot - Flask Backend with V1 Auth
 - Brute-force lockout: 5 failures / 900s by email OR ip (blunt, documented)
 - Compound index on login_attempts(email, attempted_at)
 
-Run with:
-  gunicorn --bind 0.0.0.0:5000 --timeout 120 --worker-class gthread app:app
+Run locally:
+  python app.py
+  → http://localhost:5001
+
+Behind campus NGINX (https://hpc1.csub.edu/ab-sayed/):
+  CSUBOT_PREFIX=/ab-sayed CSUBOT_PORT=5000 CSUBOT_BIND=127.0.0.1 CSUBOT_COOKIE_SECURE=1 \\
+    gunicorn --bind 127.0.0.1:5000 --timeout 120 --worker-class gthread app:app
 """
 
 import html
@@ -33,6 +38,8 @@ from rag import build_system_prompt, refresh_knowledge
 from flask_cors import CORS
 from datetime import timedelta
 from functools import wraps
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 # ── Configuration ─────────────────────────────────────────────
 OLLAMA_HOST      = 'http://127.0.0.1:11434'
@@ -54,7 +61,19 @@ SECRET_KEY       = os.environ.get('CSUBOT_SECRET', 'CHANGE_THIS_IN_PRODUCTION')
 SESSION_HOURS    = 8            # fixed lifetime, no sliding window
 MAX_FAILED_LOGIN = 5
 LOCKOUT_SECONDS  = 900          # 15 minutes
+# Public path on hpc1 NGINX. Empty for localhost. Example: /ab-sayed
+PREFIX           = os.environ.get('CSUBOT_PREFIX', '').rstrip('/')
+BIND_HOST        = os.environ.get('CSUBOT_BIND', '0.0.0.0')
+BIND_PORT        = int(os.environ.get('CSUBOT_PORT', '5001'))
+COOKIE_SECURE    = os.environ.get('CSUBOT_COOKIE_SECURE', '').lower() in ('1', 'true', 'yes')
 # ─────────────────────────────────────────────────────────────
+
+def p(href):
+    """Prefix an app path so links work under /ab-sayed on hpc1."""
+    if not href.startswith('/'):
+        href = '/' + href
+    return (PREFIX + href) if PREFIX else href
+
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -65,14 +84,27 @@ app.permanent_session_lifetime = timedelta(hours=SESSION_HOURS)
 # Cookie security flags
 app.config.update(
     SESSION_COOKIE_HTTPONLY = True,
-    SESSION_COOKIE_SECURE   = False,   # False for local HTTP; True in production
+    SESSION_COOKIE_SECURE   = COOKIE_SECURE,
     SESSION_COOKIE_SAMESITE = 'Lax',
     SESSION_COOKIE_NAME     = 'csubot_session',
+    APPLICATION_ROOT        = PREFIX or '/',
+    SESSION_COOKIE_PATH     = PREFIX or '/',
 )
 
 CORS(app,
-     origins=['https://cs.csub.edu', 'http://localhost', 'http://127.0.0.1', 'http://localhost:5001', 'http://127.0.0.1:5001'],
+     origins=['https://cs.csub.edu', 'https://hpc1.csub.edu',
+              'http://localhost', 'http://127.0.0.1',
+              'http://localhost:5001', 'http://127.0.0.1:5001'],
      supports_credentials=True)
+
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+if COOKIE_SECURE:
+    app.config['PREFERRED_URL_SCHEME'] = 'https'
+if PREFIX:
+    def _prefix_home(environ, start_response):
+        start_response('302 FOUND', [('Location', PREFIX + '/')])
+        return [b'']
+    app.wsgi_app = DispatcherMiddleware(_prefix_home, {PREFIX: app.wsgi_app})
 
 # ── Database ──────────────────────────────────────────────────
 def get_db():
@@ -121,7 +153,7 @@ init_db()
 # ── Helpers ───────────────────────────────────────────────────
 def read_html(name):
     with open(os.path.join(ROOT, name), encoding='utf-8') as f:
-        return f.read()
+        return f.read().replace('__PREFIX__', PREFIX)
 
 def show_box(html_text, placeholder, message, open_style='display:block;'):
     if not message:
@@ -234,10 +266,10 @@ def approved_required(*roles):
 def role_nav(user):
     links = []
     if user['role'] == 'admin':
-        links.append('<a class="config-btn" href="/admin">Approve users</a>')
-        links.append('<a class="config-btn" href="/staff">Knowledge</a>')
+        links.append(f'<a class="config-btn" href="{p("/admin")}">Approve users</a>')
+        links.append(f'<a class="config-btn" href="{p("/staff")}">Knowledge</a>')
     if user['role'] == 'staff':
-        links.append('<a class="config-btn" href="/staff">Knowledge</a>')
+        links.append(f'<a class="config-btn" href="{p("/staff")}">Knowledge</a>')
     return ''.join(links)
 
 # ── Rate limiting (chat only) ─────────────────────────────────
@@ -424,10 +456,10 @@ def _account_rows(users, pending=False):
         if pending:
             actions = (
                 '<div class="row-actions">'
-                f'<form method="POST" action="/admin/approve">'
+                f'<form method="POST" action="{p("/admin/approve")}">'
                 f'<input type="hidden" name="user_id" value="{uid}"/>'
                 f'<button class="btn-ok" type="submit">Approve</button></form>'
-                f'<form method="POST" action="/admin/deny">'
+                f'<form method="POST" action="{p("/admin/deny")}">'
                 f'<input type="hidden" name="user_id" value="{uid}"/>'
                 f'<button class="btn-no" type="submit">Deny</button></form>'
                 '</div>'
@@ -436,7 +468,7 @@ def _account_rows(users, pending=False):
             if u['status'] == 'banned':
                 actions = (
                     '<div class="row-actions">'
-                    f'<form method="POST" action="/admin/unban">'
+                    f'<form method="POST" action="{p("/admin/unban")}">'
                     f'<input type="hidden" name="user_id" value="{uid}"/>'
                     f'<button class="btn-ok" type="submit">Unban</button></form>'
                     '</div>'
@@ -444,7 +476,7 @@ def _account_rows(users, pending=False):
             elif u['status'] == 'approved':
                 actions = (
                     '<div class="row-actions">'
-                    f'<form method="POST" action="/admin/ban">'
+                    f'<form method="POST" action="{p("/admin/ban")}">'
                     f'<input type="hidden" name="user_id" value="{uid}"/>'
                     f'<button class="btn-no" type="submit">Ban</button></form>'
                     '</div>'
@@ -559,7 +591,7 @@ def staff_page():
     for name in KNOWLEDGE_FILES:
         active = ' active' if name == filename else ''
         links.append(
-            f'<a class="{active.strip()}" href="/staff?file={html.escape(name)}">'
+            f'<a class="{active.strip()}" href="{p("/staff")}?file={html.escape(name)}">'
             f'{html.escape(name)}</a>'
         )
 
@@ -573,12 +605,12 @@ def staff_page():
     for faq in faqs:
         faq_html.append(
             '<div class="faq-item">'
-            f'<form method="POST" action="/staff/faq/update">'
+            f'<form method="POST" action="{p("/staff/faq/update")}">'
             f'<input type="hidden" name="faq_id" value="{int(faq["id"])}"/>'
             f'<input type="text" name="question" value="{html.escape(faq["question"], quote=True)}" required/>'
             f'<textarea name="answer" rows="3" required>{html.escape(faq["answer"])}</textarea>'
             f'<button class="submit-btn" type="submit">Save FAQ</button></form>'
-            f'<form method="POST" action="/staff/faq/delete" style="display:inline;">'
+            f'<form method="POST" action="{p("/staff/faq/delete")}" style="display:inline;">'
             f'<input type="hidden" name="faq_id" value="{int(faq["id"])}"/>'
             f'<button class="submit-btn danger" type="submit">Delete</button></form>'
             '</div>'
@@ -588,7 +620,7 @@ def staff_page():
     flash = request.args.get('flash', '')
     admin_link = ''
     if current_user()['role'] == 'admin':
-        admin_link = '<a class="config-btn" href="/admin">Approve users</a>'
+        admin_link = f'<a class="config-btn" href="{p("/admin")}">Approve users</a>'
     return (
         page
         .replace('__ADMIN_LINK__', admin_link)
@@ -680,7 +712,10 @@ def panel_stylesheet():
 
 @app.route('/csubot.js')
 def script():
-    return send_from_directory(ROOT, 'csubot.js')
+    with open(os.path.join(ROOT, 'csubot.js'), encoding='utf-8') as f:
+        body = f.read()
+    prefix_js = f'window.CSUBOT_PREFIX = {json.dumps(PREFIX)};\n'
+    return Response(prefix_js + body, mimetype='application/javascript')
 
 
 @app.route('/chat', methods=['POST'])
@@ -750,4 +785,4 @@ def health():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=False)
+    app.run(host=BIND_HOST, port=BIND_PORT, debug=False)

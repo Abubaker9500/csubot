@@ -13,8 +13,8 @@
   <div class="header-title">CSU<span>Bot</span> Knowledge</div>
   <div class="header-actions">
     __ADMIN_LINK__
-    <a class="config-btn" href="/">Chat</a>
-    <form method="POST" action="/logout" style="display:inline;">
+    <a class="config-btn" href="__PREFIX__/">Chat</a>
+    <form method="POST" action="__PREFIX__/logout" style="display:inline;">
       <button type="submit" class="config-btn">Sign out</button>
     </form>
   </div>
@@ -26,7 +26,7 @@
 
   <h2>Knowledge files</h2>
   <div class="file-tabs">__FILE_LINKS__</div>
-  <form method="POST" action="/staff/save-file">
+  <form method="POST" action="__PREFIX__/staff/save-file">
     <input type="hidden" name="filename" value="__FILENAME__"/>
     <label class="field-label" for="content">Editing __FILENAME__</label>
     <textarea id="content" name="content" rows="18">__FILE_CONTENT__</textarea>
@@ -35,7 +35,7 @@
 
   <h2>Frequent questions</h2>
   <p class="lede">Add a question students ask often and the answer staff want the bot to use.</p>
-  <form class="faq-add" method="POST" action="/staff/faq/add">
+  <form class="faq-add" method="POST" action="__PREFIX__/staff/faq/add">
     <input type="text" name="question" placeholder="Question" required/>
     <textarea name="answer" rows="3" placeholder="Expected answer" required></textarea>
     <button type="submit" class="submit-btn">Add FAQ</button>

@@ -15,13 +15,18 @@ Usage (Linux GPU):
 import os
 import sys
 
+# Pin to one GPU before CUDA loads. Splitting Qwen3.5-9B across 4 L40S
+# cards made Unsloth crash in backward (cublasGemmEx / index out of bounds).
+os.environ.setdefault('CUDA_VISIBLE_DEVICES', '0')
+os.environ.setdefault('UNSLOTH_COMPILE_DISABLE', '1')
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(ROOT, 'finetune', 'data')
 OUT_DIR = os.path.join(ROOT, 'finetune', 'lora_csubot')
 GGUF_DIR = os.path.join(ROOT, 'finetune', 'gguf_csubot')
 
 BASE_MODEL = os.environ.get('CSUBOT_BASE_MODEL', 'unsloth/Qwen3.5-9B')
-MAX_SEQ = 2048
+MAX_SEQ = 1024
 LORA_RANK = 16
 
 
@@ -67,7 +72,7 @@ def main():
         lora_alpha=LORA_RANK * 2,
         lora_dropout=0,
         bias='none',
-        use_gradient_checkpointing='unsloth',
+        use_gradient_checkpointing=True,
         random_state=42,
     )
 
@@ -104,6 +109,8 @@ def main():
             dataset_text_field='text',
             report_to='none',
             seed=42,
+            bf16=True,
+            fp16=False,
         ),
     )
     trainer = train_on_responses_only(

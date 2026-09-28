@@ -1,5 +1,6 @@
 // ── Config ────────────────────────────────────────────────────
-const API_URL = '/chat';
+const PREFIX = (typeof window !== 'undefined' && window.CSUBOT_PREFIX) ? window.CSUBOT_PREFIX : '';
+const API_URL = PREFIX + '/chat';
 const CHAT_STORAGE_KEY = 'csubot_chat';
 // ─────────────────────────────────────────────────────────────
 
@@ -44,7 +45,7 @@ function restoreChat() {
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
-document.querySelector('form[action="/logout"]')?.addEventListener('submit', () => {
+document.querySelector('form[action$="/logout"]')?.addEventListener('submit', () => {
   localStorage.removeItem(CHAT_STORAGE_KEY);
 });
 
@@ -229,7 +230,7 @@ async function sendMessage() {
 
     // Session expired or not logged in — redirect to login
     if (response.status === 401) {
-      window.location.href = '/login';
+      window.location.href = PREFIX + '/login';
       return;
     }
 
