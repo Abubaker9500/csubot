@@ -12,24 +12,24 @@ CSUBot is a senior project developed by students at CSUB. It provides a secure, 
 
 ## Architecture
 
-Ollama and Flask stay on HPC1 (no public HTML there). The browser uses Odin’s `public_html`, which reverse-proxies to Flask so login cookies stay on `cs.csub.edu`.
+Ollama and Flask both run on HPC1. Campus NGINX publishes the app at a public path on the same machine, so there is no extra hop.
 
 ```
-Browser
+Browser (on campus)
     │
     ▼
-https://cs.csub.edu/~sayed/csubot/   (Odin public_html — PHP proxy)
-    │
+https://hpc1.csub.edu/ab-sayed/      (NGINX on HPC1)
+    │  location /ab-sayed { proxy_pass http://127.0.0.1:5000; proxy_buffering off; }
     ▼
 Flask on HPC1  0.0.0.0:5000          (CSUBOT_PREFIX=/ab-sayed)
     │
     ▼
-Ollama on HPC1  127.0.0.1:11434      (qwen3:1.7b)
+Ollama on HPC1  127.0.0.1:11434      (qwen3:8b)
 ```
 
-Do not copy `csubot.js` to Odin as a second frontend. See `odin/README.md`.
+Odin’s `public_html` hosts a landing page that links to that URL. Do not copy `csubot.js` to Odin as a second frontend. See `odin/README.md`.
 
-`https://hpc1.csub.edu/ab-sayed/` times out from off-campus; that is why Odin is the public URL.
+That URL works on campus and times out off-campus; `odin/` also keeps a PHP reverse proxy for that case.
 
 | Layer      | Technology                        |
 |------------|-----------------------------------|

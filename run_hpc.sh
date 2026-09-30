@@ -8,6 +8,7 @@ export CSUBOT_PREFIX=/ab-sayed
 export CSUBOT_BIND=0.0.0.0
 export CSUBOT_PORT=5000
 export CSUBOT_COOKIE_SECURE=1
+export CSUBOT_MODEL=qwen3:8b
 
 if [[ -z "${CSUBOT_SECRET:-}" ]]; then
   if [[ ! -f .csubot_secret ]]; then

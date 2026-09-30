@@ -1,67 +1,77 @@
-# Odin public frontend (talks to HPC1)
+# Odin public page → CSUBot on HPC1
 
-HPC1 can run Ollama + Flask, but it is not reachable on HTTPS from a browser
-(`ERR_CONNECTION_TIMED_OUT`). Odin’s `public_html` is the public site.
+Confirmed working from a campus computer:
 
-Do **not** copy `csubot.js` as a second app. The browser must stay on Odin so
-login cookies work. These PHP files reverse-proxy to Flask on HPC1:
+**https://hpc1.csub.edu/ab-sayed/**
+
+Alberto's NGINX on HPC1 is the reverse proxy. It serves that path straight to
+Flask on the same machine, so there is no tunnel and no PHP in the request path.
 
 ```
-Browser
-    │
-    ▼
-https://cs.csub.edu/~sayed/csubot/     (Odin public_html + PHP proxy)
-    │
-    ▼
-http://hpc1.csub.edu:5000/ab-sayed/    (Flask + Ollama on HPC1)
+Browser (on campus)
+    → https://hpc1.csub.edu/ab-sayed/   (NGINX on HPC1)
+    → Flask on HPC1 127.0.0.1:5000      (CSUBOT_PREFIX=/ab-sayed)
+    → Ollama on HPC1 127.0.0.1:11434
 ```
 
-## 1. HPC1 (keep gunicorn running)
+Odin's only job is a public door: `index.html` links to that URL.
 
-Restart with a campus bind so Odin can connect (localhost-only is invisible to Odin):
+## Start it
+
+On HPC1, with Ollama already running:
 
 ```bash
-# stop the old ./run_hpc.sh with Ctrl+C, then:
 cd ~/csubot
-git pull
 source .venv/bin/activate
 ./run_hpc.sh
 ```
 
-On HPC1:
+That is the whole startup. Nothing to run on Odin.
+
+## Odin public_html
 
 ```bash
-curl -sS http://127.0.0.1:5000/ab-sayed/health
+mkdir -p ~/public_html/csubot
+cp ~/SeniorProject2/csubot/odin/index.html ~/public_html/csubot/
 ```
 
-## 2. Can Odin reach Flask?
+Then https://cs.csub.edu/~ssayedmnasim/csubot/ sends visitors to the HPC1 app.
 
-SSH to Odin and run:
+If you previously deployed the PHP proxy, move it aside so `.htaccess` stops
+routing everything through it:
 
 ```bash
-curl -sS http://hpc1.csub.edu:5000/ab-sayed/health
+mkdir -p ~/csubot-proxy-backup
+mv ~/public_html/csubot/{proxy.php,index.php,config.php,.htaccess} ~/csubot-proxy-backup/
 ```
 
-**If that returns JSON:** you are done with networking. Copy the PHP files (step 3).
-
-**If it times out:** Flask is up but port 5000 is blocked. From HPC1 open a reverse tunnel, then in `config.php` set `upstream` to `http://127.0.0.1:5000`:
+Stop the old tunnel too:
 
 ```bash
-# on HPC1, leave this running
-ssh -N -R 5000:127.0.0.1:5000 sayed@odin.cs.csub.edu
+pkill -f 'ssh -N.*-L 5000:'
+crontab -l | grep -v csubot-tunnel | crontab -   # if you added the cron line
 ```
 
-## 3. Copy this folder to Odin public_html
+## Known limit
 
-```bash
-scp odin/config.php odin/proxy.php odin/index.php odin/.htaccess \
-  sayed@odin.cs.csub.edu:~/public_html/csubot/
-```
+`hpc1.csub.edu` answers on campus but **times out off-campus**. Remote users
+need the campus VPN. If you need true off-campus access, ask the admin for one
+of these and then use the PHP proxy again:
 
-Edit `~/public_html/csubot/config.php` if your Odin username is not `sayed` or if you need the tunnel upstream.
+- allow **Odin → HPC1 TCP 5000**, or
+- proxy `cs.csub.edu/~ssayedmnasim/csubot/` → `hpc1.csub.edu:5000/ab-sayed/` in Odin's own web server config
 
-Then open:
+## Fallback: the PHP reverse proxy
 
-https://cs.csub.edu/~sayed/csubot/
+`proxy.php`, `config.php`, `index.php`, and `.htaccess` are kept in this folder
+for that case. `config.php` probes both the SSH tunnel (`127.0.0.1:5000`) and the
+direct address (`hpc1.csub.edu:5000`) and uses whichever answers. `tunnel.sh`
+keeps a tunnel alive from cron or tmux. None of it is needed while NGINX works.
 
-If that 404s, try `https://odin.cs.csub.edu/~sayed/csubot/` — CS uses one of those two hosts.
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| 502 at `/ab-sayed/` | gunicorn is down — `./run_hpc.sh` on HPC1 |
+| Times out | You are off-campus, or NGINX is down — use VPN |
+| Login works, chat errors 404 | Model name mismatch — `ollama list`, then check `CSUBOT_MODEL` in `run_hpc.sh` |
