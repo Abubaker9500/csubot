@@ -13,7 +13,7 @@ $candidates = array_map(function ($u) { return rtrim($u, '/'); }, (array) $candi
  * Pick the first upstream whose /health answers. Cached briefly so we do not
  * probe on every asset request.
  */
-function csubot_pick_upstream(array $candidates, $flaskPrefix) {
+function csubot_pick_upstream(array $candidates, $flaskPrefix, $verifyTls) {
     $cache = sys_get_temp_dir() . '/csubot_upstream_' . md5(implode('|', $candidates)) . '.txt';
     if (is_readable($cache) && (time() - filemtime($cache)) < 30) {
         $cached = trim((string) file_get_contents($cache));
@@ -27,6 +27,8 @@ function csubot_pick_upstream(array $candidates, $flaskPrefix) {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CONNECTTIMEOUT => 2,
             CURLOPT_TIMEOUT        => 4,
+            CURLOPT_SSL_VERIFYPEER => $verifyTls,
+            CURLOPT_SSL_VERIFYHOST => $verifyTls ? 2 : 0,
         ]);
         $out = curl_exec($ch);
         $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -39,7 +41,8 @@ function csubot_pick_upstream(array $candidates, $flaskPrefix) {
     return null;
 }
 
-$upstream = csubot_pick_upstream($candidates, $flaskPrefix);
+$verifyTls = (bool) ($config['verify_tls'] ?? true);
+$upstream = csubot_pick_upstream($candidates, $flaskPrefix, $verifyTls);
 
 if ($upstream === null) {
     $fallback = $config['fallback_url'] ?? '';
@@ -137,6 +140,8 @@ curl_setopt_array($ch, [
     CURLOPT_TIMEOUT        => 120,
     CURLOPT_CONNECTTIMEOUT => 10,
     CURLOPT_HEADER         => false,
+    CURLOPT_SSL_VERIFYPEER => $verifyTls,
+    CURLOPT_SSL_VERIFYHOST => $verifyTls ? 2 : 0,
     CURLOPT_HEADERFUNCTION => function ($ch, $headerLine) use (&$respHeaders) {
         $len = strlen($headerLine);
         $parts = explode(':', $headerLine, 2);

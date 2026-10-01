@@ -1,5 +1,6 @@
+# Only for the reverse-proxy setup. Do not deploy this with the landing page.
 RewriteEngine On
 RewriteRule ^config\.php$ - [F,L]
-RewriteRule ^(proxy|index)\.php$ - [L]
+RewriteRule ^proxy\.php$ - [L]
 RewriteRule ^(.*)$ proxy.php [L,QSA]
-DirectoryIndex proxy.php index.php
+DirectoryIndex proxy.php
