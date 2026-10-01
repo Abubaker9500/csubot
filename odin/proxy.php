@@ -109,7 +109,9 @@ if (function_exists('getallheaders')) {
 $reqHeaders = [];
 foreach ($incoming as $name => $value) {
     $lname = strtolower($name);
-    if (in_array($lname, ['host', 'connection', 'keep-alive', 'transfer-encoding', 'te', 'trailer', 'upgrade', 'content-length'], true)) {
+    // accept-encoding is dropped so curl controls compression; we hand the
+    // browser a decoded body and strip content-encoding from the response.
+    if (in_array($lname, ['host', 'accept-encoding', 'connection', 'keep-alive', 'transfer-encoding', 'te', 'trailer', 'upgrade', 'content-length'], true)) {
         continue;
     }
     $reqHeaders[] = $name . ': ' . $value;
@@ -136,6 +138,7 @@ $ch = curl_init($target);
 curl_setopt_array($ch, [
     CURLOPT_CUSTOMREQUEST  => $method,
     CURLOPT_HTTPHEADER     => $reqHeaders,
+    CURLOPT_ENCODING       => '',
     CURLOPT_FOLLOWLOCATION => false,
     CURLOPT_TIMEOUT        => 120,
     CURLOPT_CONNECTTIMEOUT => 10,
