@@ -20,8 +20,8 @@ return [
     ],
     'flask_prefix' => '/ab-sayed',
 
-    // Set false only if HPC1 serves a self-signed certificate.
-    'verify_tls' => true,
+    // hpc1.csub.edu's certificate is expired. Leave this false until it is renewed.
+    'verify_tls' => false,
 
     // Shown if no upstream answers.
     'fallback_url' => 'https://hpc1.csub.edu/ab-sayed/',
