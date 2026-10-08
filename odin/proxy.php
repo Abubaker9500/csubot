@@ -140,7 +140,11 @@ curl_setopt_array($ch, [
     CURLOPT_HTTPHEADER     => $reqHeaders,
     CURLOPT_ENCODING       => '',
     CURLOPT_FOLLOWLOCATION => false,
-    CURLOPT_TIMEOUT        => 120,
+    // No hard total limit: a long answer can legitimately stream for minutes.
+    // Give up only if nothing at all arrives for 150s (NGINX cuts at 120s).
+    CURLOPT_TIMEOUT        => 0,
+    CURLOPT_LOW_SPEED_LIMIT => 1,
+    CURLOPT_LOW_SPEED_TIME  => 150,
     CURLOPT_CONNECTTIMEOUT => 10,
     CURLOPT_HEADER         => false,
     CURLOPT_SSL_VERIFYPEER => $verifyTls,
@@ -158,8 +162,21 @@ if ($body !== '' && $body !== false) {
     curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 }
 
+$upstreamFailed = false;
 if ($stream) {
-    curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $data) {
+    curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $data) use (&$upstreamFailed) {
+        // If HPC1 answered with an error page (e.g. NGINX 504), do not dump
+        // its HTML into the chat. Report it as one JSON error line instead.
+        if ($upstreamFailed) {
+            return strlen($data);
+        }
+        $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($code >= 400) {
+            $upstreamFailed = true;
+            echo json_encode(['error' => "HPC1 returned HTTP $code before the model answered."]) . "\n";
+            flush();
+            return strlen($data);
+        }
         echo $data;
         if (function_exists('ob_flush')) {
             @ob_flush();
@@ -179,10 +196,18 @@ if ($stream) {
     header('Cache-Control: no-cache');
     header('X-Accel-Buffering: no');
     $ok = curl_exec($ch);
-    $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE) ?: 502;
+    $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $errno = curl_errno($ch);
+    $reason = curl_error($ch);
     curl_close($ch);
-    if ($ok === false && $status === 502) {
-        echo json_encode(['error' => 'Could not reach CSUBot on HPC1.']) . "\n";
+    if ($ok === false && $status === 0) {
+        // Nothing came back at all. Say why, so the cause is visible in the chat.
+        if ($errno === CURLE_OPERATION_TIMEDOUT) {
+            $msg = 'HPC1 did not start answering within 150s. The model is probably overloaded or slow to load. Try again in a moment.';
+        } else {
+            $msg = 'Could not reach CSUBot on HPC1' . ($reason ? " ($reason)" : '') . '.';
+        }
+        echo json_encode(['error' => $msg]) . "\n";
     }
     exit;
 }

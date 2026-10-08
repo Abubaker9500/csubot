@@ -745,6 +745,9 @@ def chat():
         'messages': messages,
         'stream': True,
         'think': False,
+        # Keep the model loaded between questions. Ollama's default unloads it
+        # after 5 idle minutes, and reloading delays the first token.
+        'keep_alive': '2h',
         'options': {'temperature': 0.2},
     }
 
