@@ -748,7 +748,7 @@ def chat():
         # Keep the model loaded between questions. Ollama's default unloads it
         # after 5 idle minutes, and reloading delays the first token.
         'keep_alive': '2h',
-        'options': {'temperature': 0.2},
+        'options': {'temperature': 0.2, 'num_ctx': 2048},
     }
 
     def generate():
