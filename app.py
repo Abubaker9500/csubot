@@ -37,7 +37,7 @@ from functools import wraps
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 # ── Configuration ─────────────────────────────────────────────
-OLLAMA_HOST      = 'http://127.0.0.1:11434'
+OLLAMA_HOST      = os.environ.get('CSUBOT_OLLAMA', 'http://127.0.0.1:11434').rstrip('/')
 DEFAULT_MODEL    = os.environ.get('CSUBOT_MODEL', 'qwen3:1.7b')
 RATE_LIMIT       = 200          # max chat requests per IP per hour
 RATE_WINDOW      = 3600         # seconds

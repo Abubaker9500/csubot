@@ -124,6 +124,7 @@ Key config values that differ between environments:
 | `CSUBOT_BIND`            | `0.0.0.0`                    | `127.0.0.1`                          |
 | `CSUBOT_PORT`            | `5001`                       | `5000`                               |
 | `CSUBOT_COOKIE_SECURE`   | unset / `0`                  | `1`                                  |
+| `CSUBOT_OLLAMA`          | `http://127.0.0.1:11434`     | `http://127.0.0.1:11435` (our Ollama on GPUs 1-3, `ollama_hpc.sh`) |
 | `DEFAULT_MODEL`          | `qwen3:1.7b`                 | `qwen3:1.7b` (or 8b)                 |
 | Public URL               | http://localhost:5001        | https://hpc1.csub.edu/ab-sayed/      |
 | `API_URL` (JS)           | `/chat`                      | `/ab-sayed/chat`                     |

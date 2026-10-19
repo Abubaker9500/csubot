@@ -9,6 +9,8 @@ export CSUBOT_BIND=0.0.0.0
 export CSUBOT_PORT=5000
 export CSUBOT_COOKIE_SECURE=1
 export CSUBOT_MODEL=qwen3:8b
+# Our own Ollama from ollama_hpc.sh (GPUs 1-3). Set to :11434 to use the shared one.
+export CSUBOT_OLLAMA="${CSUBOT_OLLAMA:-http://127.0.0.1:11435}"
 
 if [[ -z "${CSUBOT_SECRET:-}" ]]; then
   if [[ ! -f .csubot_secret ]]; then

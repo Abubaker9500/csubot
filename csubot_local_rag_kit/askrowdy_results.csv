@@ -1,0 +1,372 @@
+id,question,answer,response_time_seconds,sources,status
+1,Where is libary located?,Visit the Walter W. Stiern Library - Main Campus  webpage for all library locations on campus.,6.91,https://www.csub.edu/library/,success
+2,What time does the student union open?,You can find all the resources available to California State University Bakersfield students on our Student Union  webpage!,6.9,https://www.csub.edu/studentunion,success
+3,When does the fall semester begin?,​​​​​​​Check out the Academic Calendar  for semester start dates.,3.35,https://www.csub.edu/calendars/academic,success
+4,can you pass a class with a d?,Check the https://www.csub.edu/catalog  for the grading policy.,4.37,https://www.csub.edu/catalog,success
+5,Does CSUB accept applications for the spring semester?,"The Office of Undergraduate Admissions is open during the following times:
+
+Monday - Friday: 8:00 a.m. - 5:00 p.m.
+
+Office closed on Fridays during Summer hours
+
+You can reach a member of the Office of Undergraduate Admissions by email or by phone at 661-654-3036.
+
+Would you like me to help you contact someone?
+
+YES, PLEASE
+NO THANKS",45.44,mailto:admissions@csub.edu | tel:661-654-3036,success
+6,What documents do international students need to apply to CSUB?,You can find everything you need to apply for international admission to here: https://www.csub.edu/isp/contact-international-students California State University Bakersfield as an international student on our Office of Undergraduate Admissions  webpage. You can also contact the Office of Undergraduate Admissions by phone at 661-654-3036 or by email for additional information.,7.41,https://www.csub.edu/isp/contact-international-students | https://www.csub.edu/admissions | tel:661-654-3036 | mailto:admissions@csub.edu,success
+7,How do I accept an offer of admission from CSUB?,"Once you've been admitted, you will get information from California State University Bakersfield about what to do next. Keep a close eye on your https://www.csub.edu/apply  account so you don't miss any important messages from California State University Bakersfield.",7.41,https://www.calstate.edu/apply,success
+8,Are there different admissions requirements for impacted majors at CSUB?,"You can apply for admission to California State University Bakersfield as a transfer student by visiting https://www.csub.edu/apply .
+
+1",43.43,https://www.calstate.edu/apply,success
+9,How can I schedule a campus tour at CSUB?,Information about visiting California State University Bakersfield can be found on our Campus Tours page .,7.4,https://www.csub.edu/campustours/,success
+10,Who should I contact if I submitted an application with incorrect information?,"Once you submit your application for admission, no changes can be made. If you have specific questions about your application, contact the California State University Bakersfield Office of Undergraduate Admissions via email  or by phone at 661-654-3036.",14.0,mailto:admissions@csub.edu | tel:661-654-3036,success
+11,How do I register for classes using myCSUB?,You can find helpful videos at https://www.csub.edu/science/how-videos .,6.9,https://www.csub.edu/science/how-videos,success
+12,Where can I find my enrollment appointment date?,"You can visit the Office of Financial Aid & Scholarships homepage  to find the answers to your questions, but I can answer any Frequently Asked Questions you have right here!",37.83,https://www.csub.edu/financial-aid,success
+13,What should I do if a class I need is already full?,"Sometimes there are waitlists available for classes that fill up - but not always. If you're not able to register for a class you need, your advisor is a good place to get some answers about other possible options. Reach out to your advisor for additional options and assistance.",7.41,,success
+14,How does the course waitlist work at CSUB?,"When a seat opens, the waitlist process considers each student in order and will not move a student into the course if any of these three are true:
+any prerequisites are not met;
+adding the waitlist course would put the student at or above their unit limit;
+the student would have a time conflict with the course.
+If you are enrolled in 12 or more units, you are limited to 15 units of waitlist courses. If enrolled in fewer than 12 units, you may request permission from the Dean of your school to be on more waitlists.
+If you are added to a section from the waitlist, you will receive an email. Students on waitlists should check their myCSUB account daily to see if they have been added.
+Waitlists are cleared after the Last Day to Add for the semester.
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",13.5,,success
+15,How can I drop a class after the semester has started?,"That sounds like a question for the Office of the Registrar! Feel free to email , or call us at to learn how to drop a class. In the meantime, please be sure to check out the Academic Calendar to determine the add/drop deadline.",6.9,mailto:registrar@csub.edu | tel:,success
+16,How do I know whether I have a hold preventing registration?,"A variety of issues can hold up your ability to register, from having overdue fees at California State University Bakersfield to missing health care paperwork. Visit your student account via https://my.csub.edu  to learn more about your registration holds, or get in touch with the Office of the Registrar  to get to the bottom of it.",7.91,https://my.csub.edu/ | https://www.csub.edu/registrar,success
+17,Can I register for a course if I have not met its prerequisite?,"If you believe you meet the requirements of a course prerequisite, contact the Office of the Registrar  to discuss your situation.",8.42,mailto:registrar@csub.edu,success
+18,Where can I see which courses are offered next semester?,Please use the following link to access California State University Bakersfield https://www.csub.edu/catalog .,7.41,https://www.csub.edu/catalog,success
+19,How do I change my class schedule after registering?,"Prior to Census Day, registration changes can be made using https://my.csub.edu . After Census Day, please visit Registrar's page . If you need additional information please check the Academic Calendar https://www.csub.edu/calendars/academic.shtml",7.92,https://my.csub.edu/ | https://www.csub.edu/registrar/records | https://www.csub.edu/calendars/academic.shtml,success
+20,Who can help me if myCSUB will not let me enroll in a required class?,"If myCSUB will not let you enroll in a required class, contact your academic advisor (meet with your advisor prior to registration) and/or the Registrar’s Office for help. The Registrar’s Office can also be reached by email at registrar@csub.edu.
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",14.51,mailto:registrar@csub.edu,success
+21,How many semester units are required to earn a bachelor’s degree at CSUB?,The number of units you need to graduate depends on the degree. Associate's degrees typically require 60 total units to complete while a bachelor's degree is usually around 120 units. There is more variance to the number of units that graduate degrees require. Check with your Academic Advisor to see how many units you need to graduate.,6.9,,success
+22,What is the minimum GPA required to graduate from CSUB?,"Each student must complete with a grade point average (GPA) of 2.0 (C) or better.
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",12.98,,success
+23,Does a D grade count as passing at CSUB?,Check the https://www.csub.edu/catalog  for the grading policy.,7.41,https://www.csub.edu/catalog,success
+24,Does a D grade satisfy a required course for the computer science major?,Check the https://www.csub.edu/catalog  for the grading policy.,7.41,https://www.csub.edu/catalog,success
+25,Where can I find the degree requirements for the computer science major?,"Specific requirements are listed in the https://www.csub.edu/catalog  and usually include a minimum number of units, GPA requirements, and specific courses you must take to earn your degree.",7.91,https://www.csub.edu/catalog,success
+26,How can I see which graduation requirements I have already completed?,"When you have satisfied all the requirements and completed all the coursework for your degree, then you will be eligible to graduate and receive your degree. Check with your Academic Advisor if you have any questions about your status!",7.41,,success
+27,What is the difference between an incomplete grade and a withdrawal?,"An incomplete grade indicates you have not yet completed all of the coursework needed to successfully complete a class. Incomplete grades are given at the instructor's discretion, giving you additional time beyond the end of the semester to complete your coursework. Learn more about grading policies at California State University Bakersfield by visiting the https://www.csub.edu/catalog .",6.91,https://www.csub.edu/catalog,success
+28,Can I repeat a class to improve my GPA at CSUB?,"The policies related to repeating a course at California State University Bakersfield can be found in the https://www.csub.edu/catalog . If you don't find the information you need, your academic advisor can answer your questions.",6.91,https://www.csub.edu/catalog,success
+29,How do I officially change my major at CSUB?,"After consulting with your academic advisor, you can work with the Office of the Registrar  to change your major.",8.93,mailto:registrar@csub.edu,success
+30,Can one course count toward both a general education requirement and a major requirement?,"Yes. The materials state that general education courses approved for GE credit may also fulfill (double-count for) the major, minor, cognate, or foundation requirements. However, note one specific exception mentioned: the two required approved upper-division courses outside the major cannot be double-counted toward lower-division area requirements or the Junior-Year Diversity and Reflection (JYDR) requirement.
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",13.5,,success
+31,When does the Fall 2026 semester begin at CSUB?,​​​​​​​Check out the Academic Calendar  for semester start dates.,7.4,https://www.csub.edu/calendars/academic,success
+32,When does the Fall 2026 semester end at CSUB?,Check out the Academic Calendar  for detailed information about important academic dates.,7.41,https://www.csub.edu/calendars/academic,success
+33,When are final exams scheduled for Fall 2026?,"Your finals schedule can generally be found on the course syllabus for each of your classes. For more information on important dates throughout the semester, visit the Academic Calendar .",7.42,https://www.csub.edu/calendars/academic,success
+34,What is the last day to add a class in Fall 2026?,Check out the Academic Calendar  for the deadlines to add and drop classes.,6.92,https://www.csub.edu/calendars/academic,success
+35,What is the last day to drop a Fall 2026 class without a W?,Check out the Academic Calendar  for the deadlines to add and drop classes.,6.92,https://www.csub.edu/calendars/academic,success
+36,What is the deadline to withdraw from a Fall 2026 course?,"You can find details about important registration dates on the Office of the Registrar  webpage or you can look at the Academic Calendar .
+
+To avoid any unintended consequences, please be sure to chat with financial aid prior to withdrawing.",6.9,https://www.csub.edu/registrar | https://www.csub.edu/calendars/academic,success
+37,When does registration open for Spring 2027?,"Registration for Spring 2027 at CSUB
+
+Registration for the Spring 2027 semester begins on October 26, 2026, for continuing students and on November 16, 2026, for new students.
+
+Continuing students: October 26, 2026
+New students: November 16, 2026
+
+For details on advising, enrollment holds, and step‑by‑step registration instructions, see CSUB’s registration and academic calendar pages:
+
+Registration & Records (CSUB)",6.4,https://www.csub.edu/registrar,success
+38,When does the Spring 2027 semester begin?,​​​​​​​Check out the Academic Calendar  for semester start dates.,7.92,https://www.csub.edu/calendars/academic,success
+39,Where is the official CSUB academic calendar published?,"The Office of Undergraduate Admissions is open during the following times:
+
+Monday - Friday: 8:00 a.m. - 5:00 p.m.
+
+Office closed on Fridays during Summer hours
+
+You can reach a member of the Office of Undergraduate Admissions by email or by phone at 661-654-3036.
+
+Would you like me to help you contact someone?
+
+YES, PLEASE
+NO THANKS",12.98,mailto:admissions@csub.edu | tel:661-654-3036,success
+40,"Does CSUB offer winter or summer courses, and where can I see their dates?","Yes. CSUB offers both Winter Session and Summer session courses. Dates and session information are listed in the Academic Calendar documents (e.g., Winter Session and Extended Education session start and end dates are shown in the academic calendar entries). For example, the calendars note Winter Session start/end dates (e.g., Winter Session begins January 2 and ends January 14–15 depending on the year) and reference Summer session deadlines and exam periods. You can view these dates on the CSUB Academic Calendar pages and the calendar PDFs linked from the university (the Academic Calendar/Winter Session and Summer session dates are shown in those calendar documents).
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",12.48,,success
+41,How much is undergraduate tuition for a California resident at CSUB?,"The Cost of Attendance (COA) can vary from person to person due to your chosen program, enrollment level, and housing arrangements.
+
+Your COA includes billable costs, like tuition and fees, on-campus housing and meal plans and non-billable charges, like off-campus housing and food (or living expenses), cost of books, course materials, supplies, and equipment, transportation, and miscellaneous personal expenses. The Cost of Attendance will not be the actual amount of your bill, but instead is an estimate of all your costs for the academic year. Each student's bill will be specific to them since there can be different charges and fees assessed for different reasons.",7.41,,success
+42,What additional campus fees do undergraduate students pay at CSUB?,"The Cost of Attendance (COA) can vary from person to person due to your chosen program, enrollment level, and housing arrangements.
+
+Your COA includes billable costs, like tuition and fees, on-campus housing and meal plans and non-billable charges, like off-campus housing and food (or living expenses), cost of books, course materials, supplies, and equipment, transportation, and miscellaneous personal expenses. The Cost of Attendance will not be the actual amount of your bill, but instead is an estimate of all your costs for the academic year. Each student's bill will be specific to them since there can be different charges and fees assessed for different reasons.",6.9,,success
+43,How much more does a nonresident student pay in tuition?,"All tuition costs for CSUB are found on the Tuition  webpage.
+
+A schedule of 2022-2023 tuition and fees can be found on the Schedule of tuition and fees  webpage.",7.41,https://www.csub.edu/isp/tuition-and-fees | https://www.csub.edu/catalog/2023-2024-schedule-tuition-and-fees,success
+44,How do I apply for financial aid at CSUB?,"YOU emphasizes individual well-being and self-awareness by dynamically serving up tips, online tools and CSUB campus resources that gets you needed resources in the moment, 24/7/365. Sign up on the CSUB Mobile App or here .",8.42,https://you.csub.edu/,success
+45,What is the difference between a subsidized and an unsubsidized federal student loan?,"The government pays the interest on a Federal Direct Subsidized loan (they subsidize your interest) during the time you're enrolled at least half-time in school.
+
+More info in this quick video!
+
+What is a Federal Direct Student Loan?02:08",7.41,,success
+46,When is financial aid usually disbursed for the fall semester?,"The financial aid will be disbursed into your CSUB student account for the corresponding term no sooner than 10 days prior to the beginning of that term. Once disbursed, it will be credited towards any outstanding tuition fees or charges. If there is any remaining credit balance, a refund check will be issued to you via BankMobile Disbursements. To set up your refunding preference, log in to your myCSUB account and click on ""Manage Your Refunds"". For more information, you can email sfs@csub.edu or call (661) 654-3225.
+
+Pleae note, it will take 3-4 business days after for the refunding process to occur. In some cases, students may have to wait 30 days after the start of the semester for disbursement to occur.",6.9,,success
+47,Where can I view my financial aid award offer?,"Financial aid is a blanket term used to describe support from outside you and your family. Scholarships, grants, work-study, and loans are all considered financial aid.
+
+For more information, try asking ""How do I apply for financial aid?"" or ""What types of financial aid do you offer?""
+
+📽️ Would you like to watch a video to learn more?
+
+YES
+NO",28.7,,success
+48,What should I do if my financial aid has not been disbursed?,"There can be many reasons why your financial aid has not yet applied to your bill. Here are some common causes:
+
+You have missing or incomplete financial aid documents.
+Your recently submitted documents are under review.
+You have a hold on your account.
+You may not be enrolled in enough units. You must be enrolled at least half-time to receive most forms of Federal Financial Aid.",6.9,,success
+49,Where can I find scholarships offered through CSUB?,"You can find CSUB-offered scholarships on the Financial Aid website under ""Scholarships"" and the CSUB Scholarship Application (priority filing period noted). Specifically:
+
+Financial Aid > Scholarships page: https://www.csub.edu/financial-aid/types/scholarships.shtml 
+CSUB Scholarship Application (priority filing period: January 1 to March 2) — referenced on the Communications - Students page.
+
+These pages include information about CSUB-funded scholarships and links (e.g., Roadrunner Scholarship Universe) to get started.
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",14.0,https://www.csub.edu/financial-aid/types/scholarships.shtml,success
+50,How can I set up a tuition payment plan at CSUB?,"Please contact Student Financial Services to see if you are eligible for a payment plan. Their email is sfs@csub.edu
+
+Please include your student ID number when contacting the office.",7.41,,success
+51,How do I find the name and contact information of my academic advisor?,"It looks like you’re asking “what is academic advising.” Based on the provided CSUB materials, academic advising at CSUB is described and framed as follows:
+
+Academic advising is a form of teaching integral to the institution’s teaching and learning mission. Advisors help students value the learning process, apply decision-making strategies, set priorities, develop thinking and learning skills, and make informed choices.
+Advising involves helping students plan their academic path, understand degree requirements, stay on track from first semester through graduation, and connect with campus resources.
+CSUB uses a case management model: each undergraduate is assigned a Staff Advisor in an advising center who is the primary contact and helps students stay on track with degree requirements, connect with resources, and navigate challenges. Some majors also assign a Faculty Advisor to provide mentoring on academics, research, internships, graduate school preparation, and career development.
+Advising is expected to go beyond course selection and registration to include career conversations, guidance about fields within a major, and check-ins during the semester.
+Advisors’ duties include assisting with plans of study, registration, short- and long-term educational goals, selecting electives, monitoring progress, and referring students to resources when personal issues affect education. Students are expected to meet with advisors at least once each semester.
+CSUB materials recommend developing a coordinated advising program (including vision, mission, student learning outcomes, advising curriculum, onboarding/professional development for advisors, and a Proactive Caseload Management Advising Program) and forming an Advising Council to guide and monitor those efforts.
+
+If you want a shorter definition, or information about how to find your assigned advisor at CSUB (where it appears in the myCSUB portal), tell me which you prefer.
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",36.83,,success
+52,How can I schedule an academic advising appointment?,Yes! Please visit the Advising Website  and choose your school to determine the process for scheduling your appointment!,7.41,https://www.csub.edu/advising,success
+53,Where can I get tutoring for mathematics at CSUB?,"You can get math tutoring at CSUB at the Math Tutoring Center (Science III, Room 208). There is also a General Education Math Tutoring Center (Science III, Room 117) for Statistics, Fundamental Concepts, and RStudio. For questions or more information, email tutoring@csub.edu or call 661-654-6611.
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",12.98,mailto:tutoring@csub.edu,success
+54,Does CSUB provide free writing assistance for student papers?,"Yes. CSUB’s Writing Resource Center (WRC) offers free tutoring, workshops, and assistance for student writing, including help with essays, grammar, literature, linguistics, and MLA/APA citation. The WRC’s services are for currently enrolled CSUB students.
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",11.99,,success
+55,Where can I get help planning my remaining courses before graduation?,"Wherever you are in your degree program, an academic advisor is the best resource for making sure you're on track to graduate. For information about Academic Advising, start at the Advising Homepage .",7.4,https://www.csub.edu/advising,success
+56,How can I meet with a faculty advisor in the computer science department?,"According to the NSME Student Advising and Success Center information:
+
+If you have completed CMPS 2020 (Programming II): find your assigned faculty advisor on your myCSUB account and email that faculty advisor directly to request an appointment. If your myCSUB account does not show a faculty advisor, email sciencecenter@csub.edu and one will be assigned to you.
+
+If you have not completed CMPS 2020: schedule an appointment with an NSME Student Advising and Success Center professional staff advisor using Runner Connect.
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",12.48,mailto:sciencecenter@csub.edu,success
+57,What should I do if I am placed on academic probation?,That sounds like a question for the AARC! Feel free to contact us  for more information on getting off of academic probation.,7.41,https://www.csub.edu/AARC,success
+58,Is there academic support available for students who are struggling in a course?,"We offer many resources that can help you succeed including one-on-one guidance with a member of the Academic Advising & Resource Center. For more information, you can contact your Academic Advisor by email , or phone at 661-654-2700.",6.9,mailto:aarc@csub.edu | tel:661-654-2700,success
+59,How do I request an official academic transcript?,Unofficial transcripts can be downloaded via your myCSUB if you are a current student. Official transcripts can also be ordered here  if you are a current student. Or here  if you are a former student.,7.41,https://sp.parchment.com/simplesaml/schools/csub.php | https://www.parchment.com/u/registration/30474934/institution,success
+60,How can I speak with a professor about a grade I believe is incorrect?,If you believe there is an error with your grade(s) please speak with your instructor or department chair.,6.9,,success
+61,What is the street address of CSUB’s main campus?,"California State University Bakersfield is located at 9001 Stockdale Hwy, Bakersfield, CA 93311. You can get driving directions from any driving app.",7.41,,success
+62,Where can I find an interactive map of the CSUB campus?,"California State University Bakersfield is located at 9001 Stockdale Hwy, Bakersfield, CA 93311. You can get driving directions from any driving app.",7.42,,success
+63,Where is the Walter W. Stiern Library located?,Visit the Walter W. Stiern Library - Main Campus  webpage for all library locations on campus.,7.41,https://www.csub.edu/library/,success
+64,What are the library’s hours during a regular semester?,"The Walter W. Stiern Library - Main Campus is open during the following times: https://csub.libguides.com/library/hours 
+
+Hours vary during sessions and breaks.
+
+You can reach a member of the Walter W. Stiern Library - Main Campus by email  or by phone at 661-654-3172.",7.4,https://csub.libguides.com/library/hours | mailto:lcsub@calstate.libanswers.com | tel:661-654-3172,success
+65,Can students reserve study rooms in the library?,Please visit our Study Room page to reserve a room: https://csub.libguides.com/rooms/main,6.91,https://csub.libguides.com/rooms/main,success
+66,Where can students buy or rent textbooks for CSUB classes?,"Textbooks can be purchased at the Runner Bookstore (located in the Student Union) or purchased online (with option to pick up in the Runner Bookstore or have them shipped). The CSUB AV Library also notes some books are available as ebooks and hard copy course reserves are available at the AV Library.
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",11.96,,success
+67,What parking permit do I need to park on campus?,"You must have a valid parking permit/decals issued by Parking Management Bureau (PMB) / CSUB Parking Services to park on campus. Permit types include (per the regulations): annual (year‑round; faculty/staff), academic year (faculty/staff), semester (students, faculty, staff), activity (groups using athletic facilities), AVC reciprocity permits, special business parking (Cabinet-level/Deans), sponsored guest/daily permits, visitor permits, and Clean Air Vehicle stickers. Permits are vehicle-specific and must be displayed as required (e.g., hang on rear-view mirror or on dashboard, or affixed as a decal). Vehicles without a valid Service/ Vendor permit must purchase a parking permit and park in a legal space. To purchase a permit online, go to mycampuspermit.com and sign in with your myCSUB credentials. For questions or permit requests (including vendor/service permits, visitor or sponsored guest permits), contact parking@csub.edu or Parking Services (661-654-2677).
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",12.99,mailto:parking@csub.edu,success
+68,Where can a visitor park at CSUB?,"Visitors may park in the university parking areas designated for visitors, using either daily (sponsored guest) permits or meters:
+
+Daily/sponsored guest permits: Departments may purchase daily permits for their sponsored guests (single-day use). Visitor permits may be obtained at no cost in accordance with the waiving-of-fees process by emailing parking@csub.edu with the number of permits, the visitor’s name, and an explanation of how they meet the requirements. (See section 1.3.09 and 1.3.11.)
+
+Parking meters/time-limited visitor zones: Metered visitor parking is intended for short-term use (maximum 60 minutes per visitor). Loading zones permit parking for actively loading/unloading for up to 20 minutes.
+
+Note: All vehicles must display a valid CSU Bakersfield parking decal/permit or properly use a meter; purchase of a permit does not guarantee an available space.
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",12.98,mailto:parking@csub.edu,success
+69,Where is the Student Union located on campus?,You can find all the resources available to California State University Bakersfield students on our Student Union  webpage!,6.89,https://www.csub.edu/studentunion,success
+70,"Does CSUB have an Antelope Valley campus, and where is it located?","To learn more about applying for the California State University, Bakersfield- Antelope Valley campus please visit here .",6.91,https://www.csub.edu/av,success
+71,What health services are available to CSUB students?,"CSUB Student Health Services (SHS) provides enrolled students with basic outpatient medical and health-promotion services, including:
+
+Medical evaluation and consultation for individual health problems (acute and subacute conditions, illnesses, injuries)
+In-person and Telehealth appointments
+In-house clinical laboratory services (blood counts, urinalyses, throat cultures, pregnancy testing, etc.; most tests on-site; some sent to partner lab)
+In-house pharmacy (prescription and over‑the‑counter medications; pharmacy counseling)
+X‑ray referrals (free X‑rays through Dignity Health partnership; results returned to SHS and available via Patient Portal or medical release)
+Sexual health and family planning services (annual/biannual exams, pelvic/Pap, contraception counseling and prescriptions, pregnancy testing, treatment of common gynecologic concerns, medication abortion)
+Health behavior change counseling (e.g., smoking cessation, contraception)
+Health education programs and a Health Educator
+First aid for injuries on campus and minor procedures
+Athletic training services (sports medicine assessment and rehabilitation)
+Lactation room (private space to express milk or feed an infant; no storage)
+Wellness vending machine with menstrual, sexual-health, and safety items (free to students who pay the mandatory health fee)
+Laboratory completion of outside providers’ lab orders and referrals to local draw stations if needed
+
+Also noted: many basic services are covered by mandatory student fees (and Family PACT or Health Equity Insurance where applicable). SHS does not provide emergency or inpatient services; after‑hours or emergency care must be sought at local urgent care or hospital emergency rooms. Contact phone for SHS: (661) 654-2394; Pharmacy: (661) 654-3304.
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",15.52,,success
+72,Does CSUB offer mental health counseling for students?,"Yes. The CSUB Counseling Center offers free, confidential mental health counseling to regularly enrolled CSUB students. Counselors are available Monday through Friday, 8:00 am to 5:00 pm. Services include individual counseling (short-term model for personal and educational concerns), brief drop-in consultations (""Reflect and Connect""), group counseling, and workshops. If a student needs longer-term counseling, the Counseling Center will work with the student to identify appropriate community-based referrals. The Counseling Center phone is 661‑654‑3366.
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",11.46,,success
+73,How can I request disability accommodations for a class?,"Call SSD at 661.654.3360
+
+Email SSD: ssd@csub.edu
+
+Would you like me to help you contact someone?
+
+YES, PLEASE
+NO THANKS",7.41,tel:661.654.3360 | mailto:ssd@csub.edu,success
+74,Where can students get emergency food assistance on campus?,"Students can get emergency food assistance at the CSUB Food Pantry (located just north of the Student Union, before Parking Lot M) and through the monthly food distributions (held every 3rd Monday of the month). The Edible Garden/Farm Stand also provides produce and related support. The Food Pantry is open to CSUB students, staff, and faculty during posted hours (Mon 9 a.m.–3 p.m., Tue 12 p.m.–6 p.m., Wed 9 a.m.–3 p.m., Thu 12 p.m.–6 p.m.).
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",12.98,,success
+75,How do I apply to live in on-campus student housing?,"To apply for on-campus student housing at CSU Bakersfield:
+
+Submit your Intent to Enroll
+
+Log into myCSUB and follow the steps in your To-Do list to submit your Intent to Enroll by the posted deadline (example: November 14, 2025 for certain cohorts).
+
+Apply for Housing
+
+1–2 business days after accepting your offer of admission (once the housing application is open), go to your CSUB Housing Portal to secure housing.
+Complete your housing profile: create a bio visible to roommates/suitemates, confirm contact and emergency contact info, select top room-type preferences (prices vary and preferences are not guaranteed), and sign your housing license agreement (a 9-month academic-year contract).
+You will receive a confirmation email when your housing application is complete. Room assignments and room-type confirmations are based on the date you completed your housing profile and signed your license agreement.
+
+Pay required housing advance payment
+
+Complete the University Residence Hall contract online with your housing advance payment (or apply with a Private Certified Housing facility if applicable).
+
+Complete required new-student steps
+
+Submit official transcripts, register for orientation, set up an academic advising appointment, apply for financial aid, and check your myCSUB To-Do List for any additional requirements.
+
+Notes:
+
+First-year housing requirement: entering first-time freshmen enrolled in 12 or more units for Fall and residing more than 60 miles from CSUB are required to live on campus for their first academic year unless exempted (special exemptions considered case-by-case).
+Residence hall occupancy and room configurations are subject to change.
+For more information, visit the CSUB Student Housing & Residence Life webpage.
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",13.49,,success
+76,Where can I find information about meal plans at CSUB?,"You can find information about CSUB meal plans on the Campus Dining pages. Relevant pages and places to look include:
+
+The CSUB Campus Dining “Meal Plans” page (overview of 2026–27 plans, plan options, pricing, where swipes can be used, Dining Dollars, and usage rules).
+The CSUB “Menus and Nutrition” (Campus Dining) page, which links to the Nutrislice interactive menus and includes a section to “Learn about meal plans.”
+CSUB Student Housing and Dining & Housing pages also refer to meal plan details and link to the CSUB Dining site.
+
+If you have questions, contact Rafael Juarez at (661) 852-5930 or rajuarez@kern.org.
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",12.99,mailto:rajuarez@kern.org,success
+77,How can I join a student club or organization at CSUB?,You can find all the information you need about on-campus student clubs and organizations on our Office of Student Involvement webpage!,7.4,https://www.csub.edu/studentorg,success
+78,Is there a gym or recreation center available to CSUB students?,"Yes. The Student Recreation Center (SRC) at CSUB provides a gym and recreation facilities for students, including a three-court gymnasium, a three-lane suspended track, a 34-foot freestanding rock wall (with auto-belays and rope belays), weight and cardio areas, group fitness classes, intramural sports, climbing, personal training, small group training, fitness orientations, and other recreation programs. Access for students is covered through student fees, and additional membership options exist for non-fee-paying students and other affiliates.
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",12.47,,success
+79,What should I do if I lose my student ID card?,"The National Center for Education Statistics is a good place to start: https://nces.ed.gov/collegenavigator/ 
+
+​​​​​​​",87.49,https://nces.ed.gov/collegenavigator/,success
+80,Where can I report a campus safety emergency?,"Communication is critical before, during and after an emergency. Navigate to the ITS Service Center  webpage for information about California State University Bakersfield emergency notification system.",7.4,https://its.csub.edu/,success
+81,What is myCSUB used for?,You can find helpful videos at https://www.csub.edu/science/how-videos .,6.91,https://www.csub.edu/science/how-videos,success
+82,How do I reset my CSUB account password?,"You can access your information through your https://my.csub.edu  account.
+
+If you are having trouble logging in, try asking me, ""What do I do if I can't remember my username or password?""",7.41,https://my.csub.edu/,success
+83,How do I access Canvas for my CSUB courses?,"You can access Canvas by logging in with your NetID and CSUB password at the CSUB Canvas website (Canvas is the official CSUB learning management system). If you need help, Canvas resources listed by ITS include Canvas Overview Videos, Canvas Guides, and 24/7 chat with Faculty Canvas Support.
+
+Did this answer your question?
+Generative AI
+Generative AI can make mistakes. Check important info.",13.5,,success
+84,Where can I get technical support if I cannot log into Canvas?,"This problem usually occurs when there is conflicting data stored on your web browser. Try clearing the cached data and cookies from your web browser.
+
+The steps to clear your cache depend on which web browser you are using. Visit these links to get detailed instructions for clearing your cache in some common web browsers:
+
+Firefox  webpage
+
+Google Chrome  webpage
+
+Safari  webpage
+
+Microsoft Edge  webpage",6.92,https://support.mozilla.org/en-US/kb/how-clear-firefox-cache | https://support.google.com/accounts/answer/32050 | https://support.apple.com/guide/safari/clear-your-browsing-history-sfri47acf5d6/mac | https://support.microsoft.com/en-us/microsoft-edge/view-and-delete-browser-history-in-microsoft-edge-00cf7943-a9e1-975a-a33d-ac10ce454ca4,success
+85,How do I connect my laptop to the campus Wi-Fi?,"If you are a student at California State University Bakersfield, complete these steps to connect to Wi-FI if you are using a MAC:
+
+On the menu bar at the top of the screen, locate the Wi-Fi symbol.
+Click on the Wi-Fi symbol to see the list of networks available.
+Select the network you wish to connect to.
+
+If the Wi-Fi network is secure, you may be redirected to a webpage to enter more information, such as your username and password. For guest network access, look for an open network with 'guest' in the title. You may need to contact the ITS Service Center and request a guest account.
+
+If you are using a PC, please follow these steps:
+
+On the taskbar in the lower right-hand corner of your screen, locate the Wi-Fi symbol.
+Click on the Wi-Fi Symbol to see the list of networks available.
+Select the network you wish to connect to.
+
+If the Wi-Fi network is secure, you may be redirected to a webpage to enter more information, such as your username and password. For guest network access, look for an open network with 'guest' in the title. You may need to contact the ITS Service Center  and request a guest account.",7.41,https://its.csub.edu/,success
+86,Can CSUB students access Microsoft Office applications for schoolwork?,"Students at California State University Bakersfield have access to Office 365. First step to access Office 365 is to claim your NetID - https://csub.service-now.com/sp?id=kb_article&sys_id=47b0643e1bfc89909f47b802dd4bcb2a . After you have access to your NetID, you can access Office 365 using https://o365.csub.edu",8.42,https://csub.service-now.com/sp?id=kb_article&sys_id=47b0643e1bfc89909f47b802dd4bcb2a | https://o365.csub.edu/,success
+87,How can I find my CSUB student email address?,Students can access their student email account by: https://o365.csub.edu,6.9,https://o365.csub.edu/,success
+88,How do I check my grades online after a semester ends?,You can check your grades in https://my.csub.edu .,6.9,https://my.csub.edu/,success
+89,Where can I view my student account balance and charges?,"Personal information like your bill is protected in https://my.csub.edu . Once you log in, you can see your bill along with your other student record info. Scroll down to the finances section, and click on the blue square with the three white lines. You can view your bill by clicking ""Account Activity"" or ""Charges Due"".",7.41,https://my.csub.edu/,success
+90,What should I do if myCSUB shows a registration error?,You can find helpful videos at https://www.csub.edu/science/how-videos .,6.92,https://www.csub.edu/science/how-videos,success
+91,How do I apply for graduation at CSUB?,"Once eligible to apply, you may apply for graduation via your myCSUB .",6.89,https://www.my.csub.edu/,success
+92,When is the graduation application deadline for Fall 2026?,The Office of the Registrar will be able to inform you of the deadline for applying for graduation. Feel free to contact us  for assistance.,7.41,mailto:registrar@csub.edu,success
+93,How do I find out whether I am eligible to participate in commencement?,"When you have satisfied all the requirements and completed all the coursework for your degree, then you will be eligible to graduate and receive your degree. Check with your Academic Advisor if you have any questions about your status!",6.9,,success
+94,What is the difference between graduating and participating in commencement?,You can find information on the upcoming graduation on the Office of the Registrar  website.,7.4,https://www.csub.edu/registrar,success
+95,Where can I get help finding internships through CSUB?,"Current Response:
+
+There are typically a wide range of jobs available for students both on and off-campus. Students may apply wherever they like, whether that is on-campus or off! If you are awarded work-study with your financial aid, you will need to consider if the position is work-study eligible when exploring your job options. Also be sure to consider the location of the job, flexibility with your class schedule, etc.
+
+More info about working during college is available on the Student Employment page .",6.91,https://www.csub.edu/cece/,success
+96,Does CSUB offer resume reviews or mock interviews?,The Center for Career Education and Community Engagement (CECE) would love to help you with your resume! You can schedule an appointment with a Career Counselor in Handshake .,6.89,https://csub.joinhandshake.com/login,success
+97,"If I have 119 units but need 120 to graduate, can I still receive my degree?","https://my.csub.edu  is the main resource for information about all your student records, academic information, and financial aid details. For additional information please contact graduation@csub.edu.",6.9,https://my.csub.edu/,success
+98,"If the academic calendar and a professor’s syllabus list different final exam dates, which should I verify?","Your finals schedule can generally be found on the course syllabus for each of your classes. For more information on important dates throughout the semester, visit the Academic Calendar .",6.39,https://www.csub.edu/calendars/academic,success
+99,Can you tell me my exact GPA and account balance without accessing my private student records?,"You can keep track of the classes you take through Academic Requirement .
+
+​",18.05,https://my.csub.edu/,success
+100,"If you cannot confirm a current CSUB deadline, where should I check for the official date?","The Office of the Registrar is open during the following times:
+
+Monday - Friday: 8:00 a.m. - 5:00 p.m.
+
+Closed on Fridays during Summer Hours
+
+You can reach a member of the Office of the Registrar by email or by phone at .
+
+Would you like me to help you contact someone?
+
+YES, PLEASE
+NO THANKS",23.63,mailto:registrar@csub.edu | tel:,success

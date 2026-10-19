@@ -1,0 +1,101 @@
+﻿id,question,category
+1,What are the admission requirements for first-time freshmen at CSUB?,Admissions and applications
+2,What GPA do transfer applicants need to be considered for admission to CSUB?,Admissions and applications
+3,How do I apply to CSUB as a transfer student?,Admissions and applications
+4,Where can I check the status of my CSUB application?,Admissions and applications
+5,Does CSUB accept applications for the spring semester?,Admissions and applications
+6,What documents do international students need to apply to CSUB?,Admissions and applications
+7,How do I accept an offer of admission from CSUB?,Admissions and applications
+8,Are there different admissions requirements for impacted majors at CSUB?,Admissions and applications
+9,How can I schedule a campus tour at CSUB?,Admissions and applications
+10,Who should I contact if I submitted an application with incorrect information?,Admissions and applications
+11,How do I register for classes using myCSUB?,Registration and enrollment
+12,Where can I find my enrollment appointment date?,Registration and enrollment
+13,What should I do if a class I need is already full?,Registration and enrollment
+14,How does the course waitlist work at CSUB?,Registration and enrollment
+15,How can I drop a class after the semester has started?,Registration and enrollment
+16,How do I know whether I have a hold preventing registration?,Registration and enrollment
+17,Can I register for a course if I have not met its prerequisite?,Registration and enrollment
+18,Where can I see which courses are offered next semester?,Registration and enrollment
+19,How do I change my class schedule after registering?,Registration and enrollment
+20,Who can help me if myCSUB will not let me enroll in a required class?,Registration and enrollment
+21,How many semester units are required to earn a bachelor’s degree at CSUB?,Degree requirements and grading
+22,What is the minimum GPA required to graduate from CSUB?,Degree requirements and grading
+23,Does a D grade count as passing at CSUB?,Degree requirements and grading
+24,Does a D grade satisfy a required course for the computer science major?,Degree requirements and grading
+25,Where can I find the degree requirements for the computer science major?,Degree requirements and grading
+26,How can I see which graduation requirements I have already completed?,Degree requirements and grading
+27,What is the difference between an incomplete grade and a withdrawal?,Degree requirements and grading
+28,Can I repeat a class to improve my GPA at CSUB?,Degree requirements and grading
+29,How do I officially change my major at CSUB?,Degree requirements and grading
+30,Can one course count toward both a general education requirement and a major requirement?,Degree requirements and grading
+31,When does the Fall 2026 semester begin at CSUB?,Academic calendar and deadlines
+32,When does the Fall 2026 semester end at CSUB?,Academic calendar and deadlines
+33,When are final exams scheduled for Fall 2026?,Academic calendar and deadlines
+34,What is the last day to add a class in Fall 2026?,Academic calendar and deadlines
+35,What is the last day to drop a Fall 2026 class without a W?,Academic calendar and deadlines
+36,What is the deadline to withdraw from a Fall 2026 course?,Academic calendar and deadlines
+37,When does registration open for Spring 2027?,Academic calendar and deadlines
+38,When does the Spring 2027 semester begin?,Academic calendar and deadlines
+39,Where is the official CSUB academic calendar published?,Academic calendar and deadlines
+40,"Does CSUB offer winter or summer courses, and where can I see their dates?",Academic calendar and deadlines
+41,How much is undergraduate tuition for a California resident at CSUB?,Tuition and financial aid
+42,What additional campus fees do undergraduate students pay at CSUB?,Tuition and financial aid
+43,How much more does a nonresident student pay in tuition?,Tuition and financial aid
+44,How do I apply for financial aid at CSUB?,Tuition and financial aid
+45,What is the difference between a subsidized and an unsubsidized federal student loan?,Tuition and financial aid
+46,When is financial aid usually disbursed for the fall semester?,Tuition and financial aid
+47,Where can I view my financial aid award offer?,Tuition and financial aid
+48,What should I do if my financial aid has not been disbursed?,Tuition and financial aid
+49,Where can I find scholarships offered through CSUB?,Tuition and financial aid
+50,How can I set up a tuition payment plan at CSUB?,Tuition and financial aid
+51,How do I find the name and contact information of my academic advisor?,Advising and academic support
+52,How can I schedule an academic advising appointment?,Advising and academic support
+53,Where can I get tutoring for mathematics at CSUB?,Advising and academic support
+54,Does CSUB provide free writing assistance for student papers?,Advising and academic support
+55,Where can I get help planning my remaining courses before graduation?,Advising and academic support
+56,How can I meet with a faculty advisor in the computer science department?,Advising and academic support
+57,What should I do if I am placed on academic probation?,Advising and academic support
+58,Is there academic support available for students who are struggling in a course?,Advising and academic support
+59,How do I request an official academic transcript?,Advising and academic support
+60,How can I speak with a professor about a grade I believe is incorrect?,Advising and academic support
+61,What is the street address of CSUB’s main campus?,Campus locations and facilities
+62,Where can I find an interactive map of the CSUB campus?,Campus locations and facilities
+63,Where is the Walter W. Stiern Library located?,Campus locations and facilities
+64,What are the library’s hours during a regular semester?,Campus locations and facilities
+65,Can students reserve study rooms in the library?,Campus locations and facilities
+66,Where can students buy or rent textbooks for CSUB classes?,Campus locations and facilities
+67,What parking permit do I need to park on campus?,Campus locations and facilities
+68,Where can a visitor park at CSUB?,Campus locations and facilities
+69,Where is the Student Union located on campus?,Campus locations and facilities
+70,"Does CSUB have an Antelope Valley campus, and where is it located?",Campus locations and facilities
+71,What health services are available to CSUB students?,Student services and campus life
+72,Does CSUB offer mental health counseling for students?,Student services and campus life
+73,How can I request disability accommodations for a class?,Student services and campus life
+74,Where can students get emergency food assistance on campus?,Student services and campus life
+75,How do I apply to live in on-campus student housing?,Student services and campus life
+76,Where can I find information about meal plans at CSUB?,Student services and campus life
+77,How can I join a student club or organization at CSUB?,Student services and campus life
+78,Is there a gym or recreation center available to CSUB students?,Student services and campus life
+79,What should I do if I lose my student ID card?,Student services and campus life
+80,Where can I report a campus safety emergency?,Student services and campus life
+81,What is myCSUB used for?,Technology and online systems
+82,How do I reset my CSUB account password?,Technology and online systems
+83,How do I access Canvas for my CSUB courses?,Technology and online systems
+84,Where can I get technical support if I cannot log into Canvas?,Technology and online systems
+85,How do I connect my laptop to the campus Wi-Fi?,Technology and online systems
+86,Can CSUB students access Microsoft Office applications for schoolwork?,Technology and online systems
+87,How can I find my CSUB student email address?,Technology and online systems
+88,How do I check my grades online after a semester ends?,Technology and online systems
+89,Where can I view my student account balance and charges?,Technology and online systems
+90,What should I do if myCSUB shows a registration error?,Technology and online systems
+91,How do I apply for graduation at CSUB?,"Graduation, careers and challenging cases"
+92,When is the graduation application deadline for Fall 2026?,"Graduation, careers and challenging cases"
+93,How do I find out whether I am eligible to participate in commencement?,"Graduation, careers and challenging cases"
+94,What is the difference between graduating and participating in commencement?,"Graduation, careers and challenging cases"
+95,Where can I get help finding internships through CSUB?,"Graduation, careers and challenging cases"
+96,Does CSUB offer resume reviews or mock interviews?,"Graduation, careers and challenging cases"
+97,"If I have 119 units but need 120 to graduate, can I still receive my degree?","Graduation, careers and challenging cases"
+98,"If the academic calendar and a professor’s syllabus list different final exam dates, which should I verify?","Graduation, careers and challenging cases"
+99,Can you tell me my exact GPA and account balance without accessing my private student records?,"Graduation, careers and challenging cases"
+100,"If you cannot confirm a current CSUB deadline, where should I check for the official date?","Graduation, careers and challenging cases"
